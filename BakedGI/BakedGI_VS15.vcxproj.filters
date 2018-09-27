@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Shaders">
+      <UniqueIdentifier>{06dcf987-d5c3-489b-aa0a-88d547a323d5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Resource">
+      <UniqueIdentifier>{7b7ca1c8-6ac3-43ee-be38-84adf0a011bf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Graphics">
+      <UniqueIdentifier>{6971f3cd-7282-4763-9095-33e9457f1558}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Utils">
+      <UniqueIdentifier>{571744e1-fe2f-45dd-84ff-2b130832a680}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders\Lighting">
+      <UniqueIdentifier>{54df8202-3419-4bc7-9a41-c054b957d908}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders\Utils">
+      <UniqueIdentifier>{579263f9-7e63-44ba-810b-64bdc842280f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders\Shadow">
+      <UniqueIdentifier>{ca288708-ecab-41a6-b8c0-bb83e2bb2c2a}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Source\Main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Resources\ResrouceManager.cpp">
+      <Filter>Source Files\Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Scene\Component.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Scene\Light.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Scene\Renderer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Scene\SceneNode.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Graphics\LightManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Graphics\Material.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Graphics\ShadowManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Graphics\PipelineStateManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Scene\Scene.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Scene\SceneManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Resources\Textures\Logo.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Resources\Textures\Logo44.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Resources\Textures\SmallLogo.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Resources\Textures\SplashScreen.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Resources\Textures\StoreLogo.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Resources\Textures\WideLogo.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="Resources\Shaders\Lighting\ClusterLightingShader.hlsl">
+      <Filter>Shaders\Lighting</Filter>
+    </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Source\Resources\ResrouceManager.h">
+      <Filter>Source Files\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Scene\Component.h" />
+    <ClInclude Include="Source\Scene\Light.h" />
+    <ClInclude Include="Source\Scene\Renderer.h" />
+    <ClInclude Include="Source\Scene\SceneNode.h" />
+    <ClInclude Include="Source\Graphics\LightManager.h" />
+    <ClInclude Include="Source\Graphics\Material.h" />
+    <ClInclude Include="Source\Graphics\ShadowManager.h" />
+    <ClInclude Include="Source\Graphics\PipelineStateManager.h" />
+    <ClInclude Include="Source\Scene\Scene.h" />
+    <ClInclude Include="Source\Scene\SceneManager.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Shaders\Utils\Basics.hlsli">
+      <Filter>Shaders\Utils</Filter>
+    </None>
+    <None Include="Resources\Shaders\Lighting\LightData.hlsli" />
+    <None Include="Resources\Shaders\Lighting\ShadowData.hlsli" />
+    <None Include="Resources\Shaders\Lighting\BRDF.hlsli" />
+    <None Include="Resources\Shaders\Lighting\Material.hlsli" />
+  </ItemGroup>
+</Project>
