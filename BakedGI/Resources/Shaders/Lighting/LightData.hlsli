@@ -17,7 +17,7 @@ struct DirectionalLightData
 	float4 shadow;
 };
 
-Buffer<LocalLightData> localLightsData;
-Buffer<LocalLightGeoData> localLightsGeoData;
+StructuredBuffer<LocalLightData> localLightsData;
+StructuredBuffer<LocalLightGeoData> localLightsGeoData;
 
-Buffer<DirectionalLightData> dirLightsData;
+StructuredBuffer<DirectionalLightData> dirLightsData;

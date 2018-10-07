@@ -3,6 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 15.0.26403.7
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BakedGI", "BakedGI_VS15.vcxproj", "{930493F7-EC0C-446F-94CC-330F9F8B9010}"
+	ProjectSection(ProjectDependencies) = postProject
+		{5D3AEEFB-8789-48E5-9BD9-09C667052D09} = {5D3AEEFB-8789-48E5-9BD9-09C667052D09}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Core", "..\Core\Core_VS15.vcxproj", "{86A58508-0D6A-4786-A32F-01A301FDC6F3}"
 EndProject
@@ -43,6 +46,7 @@ Global
 		{86A58508-0D6A-4786-A32F-01A301FDC6F3}.Release|x64.ActiveCfg = Release|x64
 		{86A58508-0D6A-4786-A32F-01A301FDC6F3}.Release|x64.Build.0 = Release|x64
 		{5D3AEEFB-8789-48E5-9BD9-09C667052D09}.Debug|Windows.ActiveCfg = Debug|x64
+		{5D3AEEFB-8789-48E5-9BD9-09C667052D09}.Debug|Windows.Build.0 = Debug|x64
 		{5D3AEEFB-8789-48E5-9BD9-09C667052D09}.Debug|x64.ActiveCfg = Debug|x64
 		{5D3AEEFB-8789-48E5-9BD9-09C667052D09}.Debug|x64.Build.0 = Debug|x64
 		{5D3AEEFB-8789-48E5-9BD9-09C667052D09}.Profile|Windows.ActiveCfg = Profile|x64

@@ -1,6 +1,6 @@
 struct ShadowData
 {
-	float4x4 worldToShadowMatrix;
-}
+    float4x4 worldToShadowMatrix;
+};
 
-Buffer<ShadowData> shadowDatas;
+StructuredBuffer<ShadowData> shadowDatas;

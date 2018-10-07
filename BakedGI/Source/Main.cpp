@@ -1,6 +1,10 @@
+//Core and Model Include
 #include "pch.h"
 #include "GameCore.h"
 #include "GraphicsCore.h"
+#include "CameraController.h"
+#include "Model.h"
+#include "Camera.h"
 #include "SystemTime.h"
 #include "TextRenderer.h"
 #include "GameInput.h"
@@ -8,6 +12,11 @@
 #include "RootSignature.h"
 #include "PipelineState.h"
 #include "BufferManager.h"
+
+//Project Include
+#include "Resources/ResourceManager.h"
+
+//#include "CompiledShaders/ClusterLightingShader.h"
 
 using namespace GameCore;
 using namespace Graphics;
@@ -28,6 +37,11 @@ public:
 
 private:
 
+	Camera m_Camera;
+	std::auto_ptr<CameraController> m_CameraController;
+
+	Model m_Model;
+
 	RootSignature m_RootSig;
 	GraphicsPSO m_DepthPSO;
 	GraphicsPSO m_CutoutDepthPSO;
@@ -41,6 +55,16 @@ private:
 	D3D12_CPU_DESCRIPTOR_HANDLE m_DefaultSampler;
 	D3D12_CPU_DESCRIPTOR_HANDLE m_ShadowSampler;
 	D3D12_CPU_DESCRIPTOR_HANDLE m_BiasedDefaultSampler;
+
+	D3D12_SHADER_BYTECODE m_DepthVS;
+	D3D12_SHADER_BYTECODE m_ShadowCastVS;
+	D3D12_SHADER_BYTECODE m_ClusterLightingVS;
+
+	D3D12_SHADER_BYTECODE m_DepthPS;
+	D3D12_SHADER_BYTECODE m_ShadowCastPS;
+	D3D12_SHADER_BYTECODE m_ClusterLightingPS;
+
+	D3D12_SHADER_BYTECODE m_ClusterLightCS;
 };
 
 CREATE_APPLICATION( BakedGI )
@@ -80,9 +104,20 @@ void BakedGI::Startup( void )
 	m_DepthPSO.SetInputLayout(_countof(vertElem), vertElem);
 	m_DepthPSO.SetPrimitiveTopologyType(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE);
 	m_DepthPSO.SetRenderTargetFormats(0, nullptr, DepthFormat);
-	m_DepthPSO.SetVertexShader(g_pDepthViewerVS, sizeof())
-    // Setup your data
-	char* startSceneName = "../Resources/Meshes/sponza.h3d";
+	//m_DepthPSO.SetVertexShader(g_pDepthViewerVS, sizeof());
+	
+	void* clusterLightingShaderVS = ResourceManager::LoadShader("Shaders/ClusterLightingShaderVS.cso");
+	m_ClusterLightingVS = CD3DX12_SHADER_BYTECODE(clusterLightingShaderVS, sizeof(&clusterLightingShaderVS));
+	TextureManager::Initialize(ResourceManager::GetResourceRootPathWide() + L"Textures/");
+	std::string modelPath = "Models/sponza.h3d";
+	ASSERT(m_Model.Load((ResourceManager::GetResourceRootPath() + modelPath).c_str()));
+	ASSERT(m_Model.m_Header.meshCount > 0, "Model has no mesh in it");
+
+	float modelRadius = Length(m_Model.m_Header.boundingBox.max - m_Model.m_Header.boundingBox.min) * .5f;
+	const Vector3 eye = (m_Model.m_Header.boundingBox.min + m_Model.m_Header.boundingBox.max) * .5f + Vector3(modelRadius * .5f, 0.0f, 0.0f);
+	m_Camera.SetEyeAtUp(eye, Vector3(kZero), Vector3(kYUnitVector));
+	m_Camera.SetZRange(1.0f, 10000.0f);
+	m_CameraController.reset(new CameraController(m_Camera, Vector3(kYUnitVector)));
 }
 
 void BakedGI::Cleanup( void )

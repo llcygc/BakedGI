@@ -13,5 +13,5 @@ SceneManager::~SceneManager()
 
 Scene* SetupScene(const char* fileName)
 {
-
+	return new Scene();
 }
