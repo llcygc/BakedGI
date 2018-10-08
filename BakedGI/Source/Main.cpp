@@ -16,7 +16,12 @@
 //Project Include
 #include "Resources/ResourceManager.h"
 
-//#include "CompiledShaders/ClusterLightingShader.h"
+#include "CompiledShaders/ClusterLightingShaderVS.h"
+#include "CompiledShaders/ClusterLightingShaderPS.h"
+#include "CompiledShaders/DepthShaderVS.h"
+#include "CompiledShaders/DepthShaderPS.h"
+#include "CompiledShaders/ShadowCasterShaderVS.h"
+#include "CompiledShaders/ShadowCasterShaderPS.h"
 
 using namespace GameCore;
 using namespace Graphics;
@@ -104,7 +109,26 @@ void BakedGI::Startup( void )
 	m_DepthPSO.SetInputLayout(_countof(vertElem), vertElem);
 	m_DepthPSO.SetPrimitiveTopologyType(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE);
 	m_DepthPSO.SetRenderTargetFormats(0, nullptr, DepthFormat);
-	//m_DepthPSO.SetVertexShader(g_pDepthViewerVS, sizeof());
+	m_DepthPSO.SetVertexShader(g_pDepthShaderVS, sizeof(g_pDepthShaderVS));
+	m_DepthPSO.Finalize();
+
+	m_CutoutDepthPSO = m_DepthPSO;
+	m_CutoutDepthPSO.SetPixelShader(g_pDepthShaderPS, sizeof(g_pDepthShaderPS));
+	m_CutoutDepthPSO.SetRasterizerState(RasterizerTwoSided);
+	m_CutoutDepthPSO.Finalize();
+
+	m_ShadowPSO = m_DepthPSO;
+	m_ShadowPSO.SetRasterizerState(RasterizerShadow);
+	m_ShadowPSO.SetRenderTargetFormats(0, nullptr, g_ShadowBuffer.GetFormat());
+	m_ShadowPSO.Finalize();
+
+	m_CutoutShadowPSO = m_DepthPSO;
+	m_CutoutShadowPSO.SetPixelShader(g_pDepthShaderPS, sizeof(g_pDepthShaderPS));
+	m_CutoutShadowPSO.SetRasterizerState(RasterizerTwoSided);
+	m_CutoutShadowPSO.Finalize();
+
+	m_ModelPSO = m_DepthPSO;
+	m_ModelPSO.SetBlendState(BlendDisable);
 	
 	void* clusterLightingShaderVS = ResourceManager::LoadShader("Shaders/ClusterLightingShaderVS.cso");
 	m_ClusterLightingVS = CD3DX12_SHADER_BYTECODE(clusterLightingShaderVS, sizeof(&clusterLightingShaderVS));
