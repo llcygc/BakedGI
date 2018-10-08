@@ -52,7 +52,7 @@ private:
 	GraphicsPSO m_CutoutDepthPSO;
 
 	GraphicsPSO m_ModelPSO;
-	GraphicsPSO m_CutoutDephtPSO;
+	GraphicsPSO m_CutoutModelPSO;
 
 	GraphicsPSO m_ShadowPSO;
 	GraphicsPSO m_CutoutShadowPSO;
@@ -129,9 +129,16 @@ void BakedGI::Startup( void )
 
 	m_ModelPSO = m_DepthPSO;
 	m_ModelPSO.SetBlendState(BlendDisable);
-	
-	void* clusterLightingShaderVS = ResourceManager::LoadShader("Shaders/ClusterLightingShaderVS.cso");
-	m_ClusterLightingVS = CD3DX12_SHADER_BYTECODE(clusterLightingShaderVS, sizeof(&clusterLightingShaderVS));
+	m_ModelPSO.SetDepthStencilState(DepthStateTestEqual);
+	m_ModelPSO.SetRenderTargetFormats(1, &ColorFormat, DepthFormat);
+	m_ModelPSO.SetVertexShader(g_pClusterLightingShaderVS, sizeof(g_pClusterLightingShaderVS));
+	m_ModelPSO.SetPixelShader(g_pClusterLightingShaderPS, sizeof(g_pClusterLightingShaderPS));
+	m_ModelPSO.Finalize();
+
+	m_CutoutModelPSO = m_ModelPSO;
+	m_CutoutModelPSO.SetRasterizerState(RasterizerTwoSided);
+	m_CutoutModelPSO.Finalize();
+
 	TextureManager::Initialize(ResourceManager::GetResourceRootPathWide() + L"Textures/");
 	std::string modelPath = "Models/sponza.h3d";
 	ASSERT(m_Model.Load((ResourceManager::GetResourceRootPath() + modelPath).c_str()));
