@@ -1,13 +1,11 @@
 cbuffer PerCamera : register(b0)
 {
-	float4x4 viewMatrix;
-	float4x4 projMatrix;
+	//float4x4 viewMatrix;
+	//float4x4 projMatrix;
 	float4x4 viewProjMatrix;
-    float4x4 clusterMatrix;
-    float4 screenParam;
-    float4 projectionParam;
-	int directionLightCount;
-    int punctualLightCount;
+    //float4x4 clusterMatrix;
+    //float4 screenParam;
+    //float4 projectionParam;
 };
 
 cbuffer PerObject : register(b1)
@@ -17,12 +15,12 @@ cbuffer PerObject : register(b1)
 
 float4 PositionObjectToWorld(float4 objectPos)
 {
-    return mul(objectPos, objectToWorldMatrix);
+	return objectPos;// mul(objectPos, objectToWorldMatrix);
 }
 
 float4 PositionWorldToClip(float4 worldPos)
 {
-	return worldPos;
+	return mul(viewProjMatrix, worldPos);
 }
 
 float3 DirectionObjectToWorld(float3 dir)

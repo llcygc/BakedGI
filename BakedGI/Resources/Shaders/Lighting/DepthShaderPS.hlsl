@@ -2,7 +2,6 @@
 #include "../Utils/Basics.hlsli"
 #include "InputData.hlsli"
 
-half4 main(VertexOutputDepth i) : SV_Target0
+void main(VertexOutputDepth i)
 {
-    return half4(i.clipPos.zzz, 1.0);
 }

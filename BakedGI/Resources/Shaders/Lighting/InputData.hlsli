@@ -1,11 +1,11 @@
 
 struct VertexInput
 {
-    float4 pos : POSITION;
+    float3 pos : POSITION;
+	float2 uv : TEXCOORD0;
     float3 normal : NORMAL;
     float3 tangent : TANGENT;
-    float3 binormal : BITAGENT;
-    float2 uv : TEXCOORD0;
+    float3 binormal : BITANGENT;
 };
 
 struct VertexOutput

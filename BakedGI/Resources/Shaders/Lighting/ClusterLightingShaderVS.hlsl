@@ -2,13 +2,14 @@
 //Standard Shader for Physically based Shading by Cluster Lighting
 
 #include "../Utils/Basics.hlsli"
+#include "../Utils/Resouces.hlsli"
 #include "InputData.hlsli"
 
-
+[RootSignature(Standard_RootSig)]
 VertexOutput main( VertexInput v )
 {
     VertexOutput o = (VertexOutput)0;
-    o.posWS = PositionObjectToWorld(v.pos);
+    o.posWS = PositionObjectToWorld(float4(v.pos, 1.0));
     o.clipPos = PositionWorldToClip(o.posWS);
     o.normalWS = DirectionObjectToWorld(v.normal);
     o.tangentWS = DirectionObjectToWorld(v.tangent);
