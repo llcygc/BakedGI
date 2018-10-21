@@ -200,6 +200,8 @@ void BakedGI::Update( float deltaT )
 	m_CameraController->Update(deltaT);
 	m_ViewProjMatrix = m_Camera.GetViewProjMatrix();
 
+	m_MainViewport.TopLeftX = 0.5f;
+	m_MainViewport.TopLeftY = 0.5f;
 	m_MainViewport.Width = (float)g_SceneColorBuffer.GetWidth();
 	m_MainViewport.Height = (float)g_SceneColorBuffer.GetHeight();
 	m_MainViewport.MinDepth = 0.0f;
@@ -269,13 +271,14 @@ void BakedGI::RenderScene( void )
 			gfxContext.SetVertexBuffer(0, m_Model.m_VertexBuffer.VertexBufferView());
 		};
 
-		pfnSetupGraphicsState();
-
 		gfxContext.SetPipelineState(m_ModelPSO);
 		gfxContext.TransitionResource(g_SceneDepthBuffer, D3D12_RESOURCE_STATE_DEPTH_WRITE, true);
 		gfxContext.TransitionResource(g_SceneColorBuffer, D3D12_RESOURCE_STATE_RENDER_TARGET, true);
 		gfxContext.ClearColor(g_SceneColorBuffer);
 		gfxContext.ClearDepth(g_SceneDepthBuffer);
+
+		pfnSetupGraphicsState();
+
 		gfxContext.SetRenderTarget(g_SceneColorBuffer.GetRTV(), g_SceneDepthBuffer.GetDSV());
 		gfxContext.SetViewportAndScissor(m_MainViewport, m_MainScissor);
 
