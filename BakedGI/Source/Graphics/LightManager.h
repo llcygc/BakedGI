@@ -17,7 +17,12 @@ enum LightType
 struct Light
 {
 	Vector3 position;
+	Vector3 color;
 	Quaternion rotation;
+	float range;
+	float intensity;
+	float spotAngle;
+	bool enableShadow;
 	LightType type;
 };
 
@@ -28,6 +33,7 @@ public:
 	~LightManager();
 
 	void PrepareLightsDataForGPU();
+	void ClusterLightAssignment(GraphicsContext gfxContext);
 
 public:
 	ByteAddressBuffer m_StartOffsetIndexBuffer;
