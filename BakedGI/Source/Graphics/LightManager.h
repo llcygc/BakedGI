@@ -32,6 +32,8 @@ public:
 	LightManager();
 	~LightManager();
 
+	void AddLocalLight(Light l);
+	void SetDirectionalLight(Light l);
 	void PrepareLightsDataForGPU();
 	void ClusterLightAssignment(GraphicsContext gfxContext);
 
@@ -46,10 +48,12 @@ public:
 	ComputePSO m_ClusterLightAssignment_32;
 
 private:
-	ShadowManager m_ShadowManager;
+	static const int MAX_LOCAL_LIGHTS_COUNT = 64;
+	static const int MAX_SHADOW_CASTER_COUNT = 10;
+	static const int MAX_DIRECTIONAL_LIGHTS_COUNT = 2;
 
-	const int MAX_LOCAL_LIGHTS_COUNT = 20;
-	const int MAX_SHADOW_CASTER_COUNT = 10;
-	const int MAX_DIRECTIONAL_LIGHTS_COUNT = 4;
+	ShadowManager m_ShadowManager;
+	Light m_LocalLights[MAX_LOCAL_LIGHTS_COUNT];
+	Light m_DirectionalLight;
 };
 
