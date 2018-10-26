@@ -16,14 +16,13 @@ enum LightType
 
 struct Light
 {
-	Vector3 position;
-	Vector3 color;
+	Vector4 positionType;
+	Vector4 colorIntensity;
 	Quaternion rotation;
 	float range;
 	float intensity;
 	float spotAngle;
-	bool enableShadow;
-	LightType type;
+	int shadowIndex;
 };
 
 class LightManager
@@ -32,7 +31,7 @@ public:
 	LightManager();
 	~LightManager();
 
-	void AddLocalLight(Light l);
+	void AddLocalLight(Light l, bool clear = true);
 	void SetDirectionalLight(Light l);
 	void PrepareLightsDataForGPU();
 	void ClusterLightAssignment(GraphicsContext gfxContext);
@@ -53,7 +52,8 @@ private:
 	static const int MAX_DIRECTIONAL_LIGHTS_COUNT = 2;
 
 	ShadowManager m_ShadowManager;
-	Light m_LocalLights[MAX_LOCAL_LIGHTS_COUNT];
+	std::vector<Light> m_LocalLights;
+	//Light m_LocalLights[MAX_LOCAL_LIGHTS_COUNT];
 	Light m_DirectionalLight;
 };
 
