@@ -14,7 +14,7 @@ LightManager::~LightManager()
 
 void LightManager::SetDirectionalLight(Light l)
 {
-	if(l.positionType.GetW() == (float)LightType::Directional)
+	if(l.type == LightType::Directional)
 		m_DirectionalLight = l;
 }
 
@@ -22,7 +22,8 @@ void LightManager::AddLocalLight(Light l, bool clear)
 {
 	if (clear)
 		m_LocalLights.clear();
-	m_LocalLights.push_back(l);
+	if(l.type != LightType::Directional)
+		m_LocalLights.push_back(l);
 }
 
 void LightManager::PrepareLightsDataForGPU()

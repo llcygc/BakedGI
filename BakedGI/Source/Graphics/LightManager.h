@@ -16,13 +16,22 @@ enum LightType
 
 struct Light
 {
-	Vector4 positionType;
-	Vector4 colorIntensity;
+	Vector4 position;
+	Vector4 color;
 	Quaternion rotation;
 	float range;
 	float intensity;
 	float spotAngle;
 	int shadowIndex;
+	LightType type;
+};
+
+struct LightData
+{
+	Vector4 positionType;
+	Vector4 colorAngle;
+	Vector4 forwardRange;
+	Vector4 shadowParams;
 };
 
 class LightManager
@@ -37,19 +46,20 @@ public:
 	void ClusterLightAssignment(GraphicsContext gfxContext);
 
 public:
+
+private:
+	static const int MAX_LOCAL_LIGHTS_COUNT = 64;
+	static const int MAX_SHADOW_CASTER_COUNT = 10;
+	static const int MAX_DIRECTIONAL_LIGHTS_COUNT = 2;
+
 	ByteAddressBuffer m_StartOffsetIndexBuffer;
-	StructuredBuffer m_LightLinkListBuffer; 
+	StructuredBuffer m_LightLinkListBuffer;
 
 	StructuredBuffer m_DirectionalLightsBuffer;
 	StructuredBuffer m_PunctualLightsGeoBuffer;
 	StructuredBuffer m_PunctualLightsRenderBuffer;
 
 	ComputePSO m_ClusterLightAssignment_32;
-
-private:
-	static const int MAX_LOCAL_LIGHTS_COUNT = 64;
-	static const int MAX_SHADOW_CASTER_COUNT = 10;
-	static const int MAX_DIRECTIONAL_LIGHTS_COUNT = 2;
 
 	ShadowManager m_ShadowManager;
 	std::vector<Light> m_LocalLights;

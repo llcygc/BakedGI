@@ -14,6 +14,7 @@
 #include "BufferManager.h"
 
 //Project Include
+#include "../Source/Graphics/LightManager.h"
 #include "Resources/ResourceManager.h"
 
 #include "CompiledShaders/ClusterLightingShaderVS.h"
@@ -78,6 +79,8 @@ private:
 	D3D12_SHADER_BYTECODE m_ClusterLightCS;
 
 	void RenderObjects(GraphicsContext& gfxContext, Matrix4 viewProjMatrix, eObjectFilter filter);
+
+	void SetupLights();
 };
 
 CREATE_APPLICATION( BakedGI )
@@ -175,6 +178,13 @@ void BakedGI::Startup( void )
 	m_Camera.SetEyeAtUp(eye, Vector3(kZero), Vector3(kYUnitVector));
 	m_Camera.SetZRange(1.0f, 10000.0f);
 	m_CameraController.reset(new CameraController(m_Camera, Vector3(kYUnitVector)));
+
+	SetupLights();
+}
+
+void BakedGI::SetupLights()
+{
+	Light dirLight;
 }
 
 void BakedGI::Cleanup( void )
