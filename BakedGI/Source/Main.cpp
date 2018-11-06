@@ -7,6 +7,7 @@
 #include "Camera.h"
 #include "SystemTime.h"
 #include "TextRenderer.h"
+#include "ShadowCamera.h"
 #include "GameInput.h"
 #include "CommandContext.h"
 #include "RootSignature.h"
@@ -78,12 +79,23 @@ private:
 
 	D3D12_SHADER_BYTECODE m_ClusterLightCS;
 
+	Vector3 m_SunDirection;
+	ShadowCamera m_SunShadow;
+
 	void RenderObjects(GraphicsContext& gfxContext, Matrix4 viewProjMatrix, eObjectFilter filter);
 
 	void SetupLights();
 };
 
 CREATE_APPLICATION( BakedGI )
+
+ExpVar m_SunLightIntensity("Application/Lighting/Sun Light Intensity", 4.0f, 0.0f, 16.0f, 0.1f);
+ExpVar m_AmbientIntensity("Application/Lighting/Ambient Intensity", 0.1f, -16.0f, 16.0f, 0.1f);
+NumVar m_SunOrientation("Application/Lighting/Sun Orientation", -0.5f, -100.0f, 100.0f, 0.1f);
+NumVar m_SunInclination("Application/Lighting/Sun Inclination", 0.75f, 0.0f, 1.0f, 0.01f);
+NumVar ShadowDimX("Application/Lighting/Shadow Dim X", 5000, 1000, 10000, 100);
+NumVar ShadowDimY("Application/Lighting/Shadow Dim Y", 3000, 1000, 10000, 100);
+NumVar ShadowDimZ("Application/Lighting/Shadow Dim Z", 3000, 1000, 10000, 100);
 
 void BakedGI::Startup( void )
 {
@@ -185,6 +197,13 @@ void BakedGI::Startup( void )
 void BakedGI::SetupLights()
 {
 	Light dirLight;
+
+	float costheta = cosf(m_SunOrientation);
+	float sintheta = sinf(m_SunOrientation);
+	float cosphi = cosf(m_SunInclination * 3.14159f * 0.5f);
+	float sinphi = sinf(m_SunInclination * 3.14159f * 0.5f);
+	m_SunDirection = Normalize(Vector3(costheta * cosphi, sinphi, sintheta * cosphi));
+	dirLight.
 }
 
 void BakedGI::Cleanup( void )

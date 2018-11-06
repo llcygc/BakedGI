@@ -24,7 +24,7 @@
     <PlatformToolset>v141</PlatformToolset>
     <MinimumVisualStudioVersion>15.0</MinimumVisualStudioVersion>
     <TargetRuntime>Native</TargetRuntime>
-    <WindowsTargetPlatformVersion>10.0.17134.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Label="Configuration">
@@ -197,11 +197,11 @@
     <FxCompile Include="Resources\Shaders\Lighting\DepthShaderVS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
     </FxCompile>
-    <FxCompile Include="Resources\Shaders\Lighting\ShaderCasterShaderVS.hlsl">
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
-    </FxCompile>
-    <FxCompile Include="Resources\Shaders\Lighting\ShaderCasterShaderPS.hlsl">
+    <FxCompile Include="Resources\Shaders\Lighting\ShadowCasterShaderPS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+    </FxCompile>
+    <FxCompile Include="Resources\Shaders\Lighting\ShadowCasterShaderVS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
@@ -213,6 +213,7 @@
     <None Include="Resources\Shaders\Lighting\Material.hlsli" />
     <None Include="Resources\Shaders\Lighting\ShadowData.hlsli" />
     <None Include="Resources\Shaders\Utils\Basics.hlsli" />
+    <None Include="Resources\Shaders\Utils\Resouces.hlsli" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ItemDefinitionGroup>

@@ -171,6 +171,7 @@
     <None Include="Resources\Shaders\Lighting\InputData.hlsli" />
     <None Include="Resources\Models\sponza.h3d" />
     <None Include="Resources\Shaders\Lighting\Lighting.hlsli" />
+    <None Include="Resources\Shaders\Utils\Resouces.hlsli" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Resources\Shaders\Lighting\ClusterLightingShaderVS.hlsl">
@@ -180,7 +181,7 @@
     <FxCompile Include="Resources\Shaders\Lighting\ClusterLightAssignmentCS.hlsl" />
     <FxCompile Include="Resources\Shaders\Lighting\DepthShaderPS.hlsl" />
     <FxCompile Include="Resources\Shaders\Lighting\DepthShaderVS.hlsl" />
-    <FxCompile Include="Resources\Shaders\Lighting\ShaderCasterShaderPS.hlsl" />
-    <FxCompile Include="Resources\Shaders\Lighting\ShaderCasterShaderVS.hlsl" />
+    <FxCompile Include="Resources\Shaders\Lighting\ShadowCasterShaderPS.hlsl" />
+    <FxCompile Include="Resources\Shaders\Lighting\ShadowCasterShaderVS.hlsl" />
   </ItemGroup>
 </Project>
