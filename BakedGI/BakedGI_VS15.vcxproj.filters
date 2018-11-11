@@ -172,6 +172,7 @@
     <None Include="Resources\Models\sponza.h3d" />
     <None Include="Resources\Shaders\Lighting\Lighting.hlsli" />
     <None Include="Resources\Shaders\Utils\Resouces.hlsli" />
+    <None Include="Resources\Shaders\Utils\BasicUtils.hlsli" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Resources\Shaders\Lighting\ClusterLightingShaderVS.hlsl">

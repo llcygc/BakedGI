@@ -79,6 +79,7 @@ private:
 
 	D3D12_SHADER_BYTECODE m_ClusterLightCS;
 
+	LightManager m_LightManager;
 	Vector3 m_SunDirection;
 	ShadowCamera m_SunShadow;
 
@@ -196,14 +197,19 @@ void BakedGI::Startup( void )
 
 void BakedGI::SetupLights()
 {
-	Light dirLight;
+	LightData dirLight;
 
 	float costheta = cosf(m_SunOrientation);
 	float sintheta = sinf(m_SunOrientation);
 	float cosphi = cosf(m_SunInclination * 3.14159f * 0.5f);
 	float sinphi = sinf(m_SunInclination * 3.14159f * 0.5f);
 	m_SunDirection = Normalize(Vector3(costheta * cosphi, sinphi, sintheta * cosphi));
-	dirLight.
+	dirLight.colorAngle = Vector4(1.0f * m_SunLightIntensity, 1.0f * m_SunLightIntensity, 1.0f * m_SunLightIntensity, -1.0f);
+	dirLight.forwardRange = Vector4(m_SunDirection.GetX(), m_SunDirection.GetY(), m_SunDirection.GetZ(), -1.0f);
+	dirLight.positionType = Vector4(0.0f, 0.0f, 0.0f, 0.0f);
+	dirLight.shadowParams = Vector4(0.0f, 0.0f, 0.0f, 0.0f);
+
+	m_LightManager.SetDirectionalLight(dirLight);
 }
 
 void BakedGI::Cleanup( void )
@@ -252,8 +258,11 @@ void BakedGI::RenderObjects(GraphicsContext& gfxContext, Matrix4 viewProjMatrix,
 		//Matrix4 clusterMatrix;
 		//Vector4 screenParam;
 		//Vector4 projectionParam;
+		XMFLOAT3 cameraPos;
 	} perCameraConstants;
+
 	perCameraConstants.viewProjMatrix = viewProjMatrix;
+	XMStoreFloat3(&perCameraConstants.cameraPos, m_Camera.GetPosition());
 
 	gfxContext.SetDynamicConstantBufferView(0, sizeof(perCameraConstants), &perCameraConstants);
 
@@ -307,6 +316,9 @@ void BakedGI::RenderScene( void )
 		gfxContext.ClearDepth(g_SceneDepthBuffer);
 
 		pfnSetupGraphicsState();
+
+		m_LightManager.PrepareLightsDataForGPU(gfxContext);
+
 
 		gfxContext.SetRenderTarget(g_SceneColorBuffer.GetRTV(), g_SceneDepthBuffer.GetDSV());
 		gfxContext.SetViewportAndScissor(m_MainViewport, m_MainScissor);

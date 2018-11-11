@@ -12,23 +12,21 @@ LightManager::~LightManager()
 	m_LocalLights.clear();
 }
 
-void LightManager::SetDirectionalLight(Light l)
+void LightManager::SetDirectionalLight(LightData l)
 {
-	if(l.type == LightType::Directional)
-		m_DirectionalLight = l;
+	m_DirectionalLight = l;
 }
 
-void LightManager::AddLocalLight(Light l, bool clear)
+void LightManager::AddLocalLight(LightData l, bool clear)
 {
 	if (clear)
 		m_LocalLights.clear();
-	if(l.type != LightType::Directional)
-		m_LocalLights.push_back(l);
+	m_LocalLights.push_back(l);
 }
 
-void LightManager::PrepareLightsDataForGPU()
+void LightManager::PrepareLightsDataForGPU(GraphicsContext& gfxContext)
 {
-
+	gfxContext.SetDynamicConstantBufferView(1, sizeof(LightData), &m_DirectionalLight);
 }
 
 void LightManager::ClusterLightAssignment(GraphicsContext gfxContext)

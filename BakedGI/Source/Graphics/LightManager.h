@@ -14,17 +14,17 @@ enum LightType
 	Point
 };
 
-struct Light
-{
-	Vector4 position;
-	Vector4 color;
-	Quaternion rotation;
-	float range;
-	float intensity;
-	float spotAngle;
-	int shadowIndex;
-	LightType type;
-};
+//struct Light
+//{
+//	Vector4 position;
+//	Vector4 color;
+//	Quaternion rotation;
+//	float range;
+//	float intensity;
+//	float spotAngle;
+//	int shadowIndex;
+//	LightType type;
+//};
 
 struct LightData
 {
@@ -40,9 +40,9 @@ public:
 	LightManager();
 	~LightManager();
 
-	void AddLocalLight(Light l, bool clear = true);
-	void SetDirectionalLight(Light l);
-	void PrepareLightsDataForGPU();
+	void AddLocalLight(LightData l, bool clear = true);
+	void SetDirectionalLight(LightData l);
+	void PrepareLightsDataForGPU(GraphicsContext& gfxContext);
 	void ClusterLightAssignment(GraphicsContext gfxContext);
 
 public:
@@ -62,8 +62,8 @@ private:
 	ComputePSO m_ClusterLightAssignment_32;
 
 	ShadowManager m_ShadowManager;
-	std::vector<Light> m_LocalLights;
+	std::vector<LightData> m_LocalLights;
 	//Light m_LocalLights[MAX_LOCAL_LIGHTS_COUNT];
-	Light m_DirectionalLight;
+	LightData m_DirectionalLight;
 };
 

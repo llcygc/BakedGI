@@ -13,8 +13,9 @@ VertexOutput main( VertexInput v )
     o.clipPos = PositionWorldToClip(o.posWS);
     o.normalWS = DirectionObjectToWorld(v.normal);
     o.tangentWS = DirectionObjectToWorld(v.tangent);
-    o.binormalWS = cross(o.normalWS, o.tangentWS);
+    o.binormalWS = DirectionObjectToWorld(v.binormal);
     o.posCluster = PositionWorldToCluster(o.posWS);
+    o.viewDir = cameraPos - o.posWS.xyz;
     o.uv = v.uv;
 	return o;
 }

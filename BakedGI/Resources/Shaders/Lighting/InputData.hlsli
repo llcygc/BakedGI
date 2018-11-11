@@ -16,7 +16,8 @@ struct VertexOutput
     float3 normalWS : TexCoord2;
     float3 tangentWS : TexCoord3;
     float3 binormalWS : TexCoord4;
-    float4 posCluster : TexCoord5;
+    float3 viewDir : TexCoord5;
+    float4 posCluster : TexCoord6;
 };
 
 struct VertexInputDepth

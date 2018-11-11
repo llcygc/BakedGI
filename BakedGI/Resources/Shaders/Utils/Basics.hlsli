@@ -1,11 +1,13 @@
+
 cbuffer PerCamera : register(b0)
 {
 	//float4x4 viewMatrix;
 	//float4x4 projMatrix;
-	float4x4 viewProjMatrix;
+    float4x4 viewProjMatrix;
     //float4x4 clusterMatrix;
     //float4 screenParam;
     //float4 projectionParam;
+    float3 cameraPos;
 };
 
 cbuffer PerObject : register(b1)

@@ -1,3 +1,18 @@
+struct PositionData
+{
+    float3 posWorld;
+    float3 viewDiretion;
+    float3 normalWorld;
+    float3 clusterId;
+};
+
+struct BRDFData
+{
+    half4 diffuse;
+    half glossness;
+    half metallic;
+};
+
 struct LocalLightData
 {
 	float4 color;
