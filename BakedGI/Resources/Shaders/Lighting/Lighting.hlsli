@@ -8,7 +8,7 @@ float3 DirectLighting(PositionData posData, BRDFData brdfData, float3 lightColor
     half3 specColor = 0;
     half3 diffuseColor = 0;
     half oneMinusReflectivity = 0;
-    half metallic = 0;
+    half metallic = brdfData.metallic;
     diffuseColor = brdfData.diffuse.rgb;//
     DiffuseAndSpecularFromMetallic(brdfData.diffuse.rgb, metallic, specColor, oneMinusReflectivity);
 
@@ -39,9 +39,9 @@ float3 DirectLighting(PositionData posData, BRDFData brdfData, float3 lightColor
     
     half grazingTerm = saturate(brdfData.glossness + (1 - oneMinusReflectivity));
 
-    float3 color = diffuseColor * (lightColor * diffuseTerm);
+    float3 color = diffuseColor * (lightColor * diffuseTerm)
                     + specularTerm * lightColor * FresnelTerm(specColor, lh);
                     //+ surfaceReduction * gi.specular * FresnelLerp(specColor, grazingTerm, nv);
 
-    return color;
+    return color; //FresnelTerm(specColor, lh);
 }

@@ -28,6 +28,7 @@ enum LightType
 
 struct LightData
 {
+	Matrix4 worldToShadowMatrix;
 	Vector4 positionType;
 	Vector4 colorAngle;
 	Vector4 forwardRange;

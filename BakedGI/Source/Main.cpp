@@ -83,6 +83,8 @@ private:
 	Vector3 m_SunDirection;
 	ShadowCamera m_SunShadow;
 
+	D3D12_CPU_DESCRIPTOR_HANDLE m_ExtraTextures;
+
 	void RenderObjects(GraphicsContext& gfxContext, Matrix4 viewProjMatrix, eObjectFilter filter);
 
 	void SetupLights();
@@ -148,7 +150,7 @@ void BakedGI::Startup( void )
 
 	m_CutoutShadowPSO = m_DepthPSO;
 	m_CutoutShadowPSO.SetPixelShader(g_pDepthShaderPS, sizeof(g_pDepthShaderPS));
-	m_CutoutShadowPSO.SetRasterizerState(RasterizerTwoSided);
+	m_CutoutShadowPSO.SetRasterizerState(RasterizerShadowTwoSided);
 	m_CutoutShadowPSO.Finalize();
 
 	m_ModelPSO = m_DepthPSO;
@@ -163,6 +165,7 @@ void BakedGI::Startup( void )
 	m_CutoutModelPSO.SetRasterizerState(RasterizerTwoSided);
 	m_CutoutModelPSO.Finalize();
 
+	m_ExtraTextures = g_ShadowBuffer.GetSRV();
 
 	TextureManager::Initialize(ResourceManager::GetResourceRootPathWide() + L"Textures/");
 	std::string modelPath = "Models/sponza.h3d";
@@ -207,7 +210,11 @@ void BakedGI::SetupLights()
 	dirLight.colorAngle = Vector4(1.0f * m_SunLightIntensity, 1.0f * m_SunLightIntensity, 1.0f * m_SunLightIntensity, -1.0f);
 	dirLight.forwardRange = Vector4(m_SunDirection.GetX(), m_SunDirection.GetY(), m_SunDirection.GetZ(), -1.0f);
 	dirLight.positionType = Vector4(0.0f, 0.0f, 0.0f, 0.0f);
-	dirLight.shadowParams = Vector4(0.0f, 0.0f, 0.0f, 0.0f);
+	dirLight.shadowParams = Vector4(0.0f, 0.0f, 1.0f / g_ShadowBuffer.GetWidth(), 0.0f);
+
+	m_SunShadow.UpdateMatrix(-m_SunDirection, Vector3(0, -500.0f, 0), Vector3(ShadowDimX, ShadowDimY, ShadowDimZ),
+		(uint32_t)g_ShadowBuffer.GetWidth(), (uint32_t)g_ShadowBuffer.GetHeight(), 16);
+	dirLight.worldToShadowMatrix = m_SunShadow.GetShadowMatrix();
 
 	m_LightManager.SetDirectionalLight(dirLight);
 }
@@ -309,21 +316,39 @@ void BakedGI::RenderScene( void )
 			gfxContext.SetVertexBuffer(0, m_Model.m_VertexBuffer.VertexBufferView());
 		};
 
-		gfxContext.SetPipelineState(m_ModelPSO);
-		gfxContext.TransitionResource(g_SceneDepthBuffer, D3D12_RESOURCE_STATE_DEPTH_WRITE, true);
 		gfxContext.TransitionResource(g_SceneColorBuffer, D3D12_RESOURCE_STATE_RENDER_TARGET, true);
 		gfxContext.ClearColor(g_SceneColorBuffer);
-		gfxContext.ClearDepth(g_SceneDepthBuffer);
 
 		pfnSetupGraphicsState();
 
-		m_LightManager.PrepareLightsDataForGPU(gfxContext);
+		{
+			ScopedTimer _prof(L"Render Shadow Map", gfxContext);
+			
+			g_ShadowBuffer.BeginRendering(gfxContext);
+			gfxContext.SetPipelineState(m_ShadowPSO);
+			RenderObjects(gfxContext, m_SunShadow.GetViewProjMatrix(), kOpaque);
+			//gfxContext.SetPipelineState(m_CutoutShadowPSO);
+			//RenderObjects(gfxContext, m_SunShadow.GetViewProjMatrix(), kCutout);
+			g_ShadowBuffer.EndRendering(gfxContext);
+		}
 
+		pfnSetupGraphicsState();
+		{
 
-		gfxContext.SetRenderTarget(g_SceneColorBuffer.GetRTV(), g_SceneDepthBuffer.GetDSV());
-		gfxContext.SetViewportAndScissor(m_MainViewport, m_MainScissor);
+			ScopedTimer _prof(L"Render Color", gfxContext);
 
-		RenderObjects(gfxContext, m_ViewProjMatrix, kOpaque);
+			gfxContext.TransitionResource(g_SceneDepthBuffer, D3D12_RESOURCE_STATE_DEPTH_WRITE, true);
+			gfxContext.ClearDepth(g_SceneDepthBuffer);
+			gfxContext.SetDynamicDescriptors(3, 0, 1, &m_ExtraTextures);
+			gfxContext.SetPipelineState(m_ModelPSO);
+
+			m_LightManager.PrepareLightsDataForGPU(gfxContext);
+
+			gfxContext.SetRenderTarget(g_SceneColorBuffer.GetRTV(), g_SceneDepthBuffer.GetDSV());
+			gfxContext.SetViewportAndScissor(m_MainViewport, m_MainScissor);
+
+			RenderObjects(gfxContext, m_ViewProjMatrix, kOpaque);
+		}
 	}
 
     // Rendering something
