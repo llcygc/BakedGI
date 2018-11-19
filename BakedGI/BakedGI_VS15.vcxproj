@@ -70,6 +70,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Graphics\GIModules\CubeBuffer.cpp" />
+    <ClCompile Include="Source\Graphics\GIModules\ProbeManager.cpp" />
     <ClCompile Include="Source\Scene\SceneManager.cpp" />
     <ClCompile Include="Source\Graphics\PipelineStateManager.cpp" />
     <ClCompile Include="Source\Scene\Component.cpp" />
@@ -157,6 +159,8 @@
     <Image Include="Resources\Textures\WideLogo.png" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Graphics\GIModules\CubeBuffer.h" />
+    <ClInclude Include="Source\Graphics\GIModules\ProbeManager.h" />
     <ClInclude Include="Source\Scene\SceneManager.h" />
     <ClInclude Include="Source\Graphics\PipelineStateManager.h" />
     <ClInclude Include="Source\Scene\Component.h" />

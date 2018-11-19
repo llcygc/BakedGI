@@ -68,6 +68,12 @@
     <ClCompile Include="Source\Scene\SceneManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Graphics\GIModules\ProbeManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Graphics\GIModules\CubeBuffer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Resources\Textures\Logo.png">
@@ -159,6 +165,8 @@
     <ClInclude Include="Source\Resources\ResourceManager.h">
       <Filter>Source Files\Resource</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Graphics\GIModules\ProbeManager.h" />
+    <ClInclude Include="Source\Graphics\GIModules\CubeBuffer.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\Shaders\Utils\Basics.hlsli">
