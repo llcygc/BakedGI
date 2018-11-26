@@ -17,6 +17,7 @@
 //Project Include
 #include "../Source/Graphics/LightManager.h"
 #include "Resources/ResourceManager.h"
+#include "../Source/Graphics/GIModules/ProbeManager.h"
 
 #include "CompiledShaders/ClusterLightingShaderVS.h"
 #include "CompiledShaders/ClusterLightingShaderPS.h"
@@ -80,6 +81,7 @@ private:
 	D3D12_SHADER_BYTECODE m_ClusterLightCS;
 
 	LightManager m_LightManager;
+	ProbeManager m_ProbeManager;
 	Vector3 m_SunDirection;
 	ShadowCamera m_SunShadow;
 
@@ -88,6 +90,7 @@ private:
 	void RenderObjects(GraphicsContext& gfxContext, Matrix4 viewProjMatrix, eObjectFilter filter);
 
 	void SetupLights();
+	void SetupProbes(Model::BoundingBox boundingBox);
 };
 
 CREATE_APPLICATION( BakedGI )
@@ -196,6 +199,7 @@ void BakedGI::Startup( void )
 	m_CameraController.reset(new CameraController(m_Camera, Vector3(kYUnitVector)));
 
 	SetupLights();
+	SetupProbes(m_Model.m_Header.boundingBox);
 }
 
 void BakedGI::SetupLights()
@@ -217,6 +221,11 @@ void BakedGI::SetupLights()
 	dirLight.worldToShadowMatrix = m_SunShadow.GetShadowMatrix();
 
 	m_LightManager.SetDirectionalLight(dirLight);
+}
+
+void BakedGI::SetupProbes(Model::BoundingBox box)
+{
+	m_ProbeManager.SetUpProbes(box.min, box.max, Vector3(4, 4, 4), 1024);
 }
 
 void BakedGI::Cleanup( void )

@@ -24,18 +24,23 @@ public:
 	ProbeManager();
 	~ProbeManager();
 
-	void SetUpProbes(Vector3 min, Vector3 max, Vector3 division, int resolution);
+	void SetUpProbes(Vector3 min, Vector3 max, Vector3 division, int resolution = 1024);
 	void RenderProbeMaps();
 	void SetUpGpuDatas();
 
 private:
 
 	void ReprojCubetoOctan();
+
+	uint32_t m_probeCount;
+	Vector3 m_probeDimension;
 	
 	std::vector<ProbeMap> m_probeMaps;
 	ColorBuffer m_irradianceMapOctan;
 	ColorBuffer m_normalMapOctan;
 	ColorBuffer m_distanceMapOctan;
+
+	DepthBuffer m_depthBuffer;
 
 	StructuredBuffer m_ProbeMatrixBuffer;
 };
