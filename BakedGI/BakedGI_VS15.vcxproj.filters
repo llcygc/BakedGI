@@ -74,6 +74,9 @@
     <ClCompile Include="Source\Graphics\GIModules\CubeBuffer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Graphics\Primtives.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Resources\Textures\Logo.png">
@@ -167,6 +170,7 @@
     </ClInclude>
     <ClInclude Include="Source\Graphics\GIModules\ProbeManager.h" />
     <ClInclude Include="Source\Graphics\GIModules\CubeBuffer.h" />
+    <ClInclude Include="Source\Graphics\Primtives.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\Shaders\Utils\Basics.hlsli">

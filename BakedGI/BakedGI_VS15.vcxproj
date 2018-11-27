@@ -70,6 +70,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Graphics\Primtives.cpp" />
     <ClCompile Include="Source\Graphics\GIModules\CubeBuffer.cpp" />
     <ClCompile Include="Source\Graphics\GIModules\ProbeManager.cpp" />
     <ClCompile Include="Source\Scene\SceneManager.cpp" />
@@ -159,6 +160,7 @@
     <Image Include="Resources\Textures\WideLogo.png" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Graphics\Primtives.h" />
     <ClInclude Include="Source\Graphics\GIModules\CubeBuffer.h" />
     <ClInclude Include="Source\Graphics\GIModules\ProbeManager.h" />
     <ClInclude Include="Source\Scene\SceneManager.h" />
