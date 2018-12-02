@@ -70,7 +70,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Source\Graphics\Primtives.cpp" />
+    <ClCompile Include="Source\Graphics\Primitives.cpp" />
     <ClCompile Include="Source\Graphics\GIModules\CubeBuffer.cpp" />
     <ClCompile Include="Source\Graphics\GIModules\ProbeManager.cpp" />
     <ClCompile Include="Source\Scene\SceneManager.cpp" />
@@ -160,7 +160,7 @@
     <Image Include="Resources\Textures\WideLogo.png" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Source\Graphics\Primtives.h" />
+    <ClInclude Include="Source\Graphics\Primitives.h" />
     <ClInclude Include="Source\Graphics\GIModules\CubeBuffer.h" />
     <ClInclude Include="Source\Graphics\GIModules\ProbeManager.h" />
     <ClInclude Include="Source\Scene\SceneManager.h" />
@@ -208,6 +208,16 @@
     </FxCompile>
     <FxCompile Include="Resources\Shaders\Lighting\ShadowCasterShaderVS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+    </FxCompile>
+    <FxCompile Include="Resources\Shaders\Probe\ProbeDebugPS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Profile|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+    </FxCompile>
+    <FxCompile Include="Resources\Shaders\Probe\ProbeDebugVS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Profile|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>

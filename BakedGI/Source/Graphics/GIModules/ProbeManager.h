@@ -3,15 +3,18 @@
 #include "pch.h"
 #include "VectorMath.h"
 
+#include "GraphicsCore.h"
 #include "GpuBuffer.h"
 #include "ColorBuffer.h"
 #include "DepthBuffer.h"
+#include "PipelineState.h"
+#include "RootSignature.h"
 
 using namespace Math;
 
 struct ProbeMap
 {
-	Vector4 position;
+	Vector3 position;
 	Matrix4 cubeMatrices[6];
 	ColorBuffer irradianceMap;
 	ColorBuffer normalMap;
@@ -41,7 +44,12 @@ private:
 	ColorBuffer m_distanceMapOctan;
 
 	DepthBuffer m_depthBuffer;
-
 	StructuredBuffer m_ProbeMatrixBuffer;
+
+	GraphicsPSO m_debugDisplayPSO;
+	GraphicsPSO m_probeRenderPSO;
+
+	RootSignature m_debugDisplayRootSig;
+	RootSignature m_probeRenderRootSig;
 };
 

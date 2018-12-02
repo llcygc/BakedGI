@@ -74,7 +74,7 @@
     <ClCompile Include="Source\Graphics\GIModules\CubeBuffer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Graphics\Primtives.cpp">
+    <ClCompile Include="Source\Graphics\Primitives.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -170,7 +170,7 @@
     </ClInclude>
     <ClInclude Include="Source\Graphics\GIModules\ProbeManager.h" />
     <ClInclude Include="Source\Graphics\GIModules\CubeBuffer.h" />
-    <ClInclude Include="Source\Graphics\Primtives.h" />
+    <ClInclude Include="Source\Graphics\Primitives.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\Shaders\Utils\Basics.hlsli">
@@ -196,5 +196,7 @@
     <FxCompile Include="Resources\Shaders\Lighting\DepthShaderVS.hlsl" />
     <FxCompile Include="Resources\Shaders\Lighting\ShadowCasterShaderPS.hlsl" />
     <FxCompile Include="Resources\Shaders\Lighting\ShadowCasterShaderVS.hlsl" />
+    <FxCompile Include="Resources\Shaders\Probe\ProbeDebugVS.hlsl" />
+    <FxCompile Include="Resources\Shaders\Probe\ProbeDebugPS.hlsl" />
   </ItemGroup>
 </Project>
