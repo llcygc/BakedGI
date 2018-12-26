@@ -20,14 +20,11 @@ public:
 	void Create(const std::wstring& Name, uint32_t Width, uint32_t Height, uint32_t NumMips,
 		DXGI_FORMAT Format, D3D12_GPU_VIRTUAL_ADDRESS VidMemPtr = D3D12_GPU_VIRTUAL_ADDRESS_UNKNOWN);
 
-	void Create(const std::wstring& Name, uint32_t Width, uint32_t Height, uint32_t NumMips,
-		DXGI_FORMAT Format, D3D12_GPU_VIRTUAL_ADDRESS VidMemPtr = D3D12_GPU_VIRTUAL_ADDRESS_UNKNOWN);
-
 	const D3D12_CPU_DESCRIPTOR_HANDLE& GetSRV(void) const { return m_SRVHandle; }
 	const D3D12_CPU_DESCRIPTOR_HANDLE& GetRTV(void) const { return m_RTVHandle; }
 	const D3D12_CPU_DESCRIPTOR_HANDLE& GetUAV(void) const { return m_UAVHandle[0]; }
 
-	void SetClearColor(Color ClearColor) { m_ClearColor = ClearColor };
+	void SetClearColor(Color ClearColor) { m_ClearColor = ClearColor; }
 
 	void SetMsaaMode(uint32_t NumColorSamples, uint32_t NumCoverageSamples)
 	{

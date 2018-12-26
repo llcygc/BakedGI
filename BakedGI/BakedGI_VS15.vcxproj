@@ -70,6 +70,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Graphics\DeferredRenderer.cpp" />
     <ClCompile Include="Source\Graphics\Primitives.cpp" />
     <ClCompile Include="Source\Graphics\GIModules\CubeBuffer.cpp" />
     <ClCompile Include="Source\Graphics\GIModules\ProbeManager.cpp" />
@@ -160,6 +161,7 @@
     <Image Include="Resources\Textures\WideLogo.png" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Graphics\DeferredRenderer.h" />
     <ClInclude Include="Source\Graphics\Primitives.h" />
     <ClInclude Include="Source\Graphics\GIModules\CubeBuffer.h" />
     <ClInclude Include="Source\Graphics\GIModules\ProbeManager.h" />
@@ -203,6 +205,16 @@
     <FxCompile Include="Resources\Shaders\Lighting\DepthShaderVS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
     </FxCompile>
+    <FxCompile Include="Resources\Shaders\Lighting\GBufferShaderPS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Profile|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+    </FxCompile>
+    <FxCompile Include="Resources\Shaders\Lighting\GBufferShaderVS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Profile|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+    </FxCompile>
     <FxCompile Include="Resources\Shaders\Lighting\ShadowCasterShaderPS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
     </FxCompile>
@@ -230,6 +242,7 @@
     <None Include="Resources\Shaders\Lighting\ShadowData.hlsli" />
     <None Include="Resources\Shaders\Utils\Basics.hlsli" />
     <None Include="Resources\Shaders\Utils\BasicUtils.hlsli" />
+    <None Include="Resources\Shaders\Utils\Octahedral.hlsli" />
     <None Include="Resources\Shaders\Utils\Resouces.hlsli" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -63,6 +63,9 @@ private:
 	GraphicsPSO m_ModelPSO;
 	GraphicsPSO m_CutoutModelPSO;
 
+	GraphicsPSO m_GBufferPSO;
+	GraphicsPSO m_GBufferCutoutPSO;
+
 	GraphicsPSO m_ShadowPSO;
 	GraphicsPSO m_CutoutShadowPSO;
 
