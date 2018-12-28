@@ -190,6 +190,7 @@
     <None Include="Resources\Shaders\Utils\Resouces.hlsli" />
     <None Include="Resources\Shaders\Utils\BasicUtils.hlsli" />
     <None Include="Resources\Shaders\Utils\Octahedral.hlsli" />
+    <None Include="Resources\Shaders\Lighting\DeferredLightingRS.hlsli" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Resources\Shaders\Lighting\ClusterLightingShaderVS.hlsl">
@@ -205,5 +206,7 @@
     <FxCompile Include="Resources\Shaders\Probe\ProbeDebugPS.hlsl" />
     <FxCompile Include="Resources\Shaders\Lighting\GBufferShaderVS.hlsl" />
     <FxCompile Include="Resources\Shaders\Lighting\GBufferShaderPS.hlsl" />
+    <FxCompile Include="Resources\Shaders\Lighting\GBufferShaderCutoutPS.hlsl" />
+    <FxCompile Include="Resources\Shaders\Lighting\DeferredLightingCS.hlsl" />
   </ItemGroup>
 </Project>

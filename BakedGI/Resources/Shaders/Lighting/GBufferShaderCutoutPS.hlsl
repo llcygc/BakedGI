@@ -13,8 +13,8 @@ Texture2D<float3> texNormal : register(t3);
 
 SamplerState sampler0 : register(s0);
 
-[RootSignature(GBuffer_RootSig)]
-void main(in VertexOutput i, out half4 GBuffer0 : SV_Target0, out half4 GBuffer1 : SV_Target1, out half4 GBuffer2 : SV_Target2)
+[RootSignature(Standard_RootSig)]
+float3 main(VertexOutput i) : SV_Target0
 {
 	uint2 pixelPos = i.clipPos.xy;
 	float3 diffuseAlbedo = texDiffuse.Sample(sampler0, i.uv);
@@ -45,7 +45,5 @@ void main(in VertexOutput i, out half4 GBuffer0 : SV_Target0, out half4 GBuffer1
 	posData.posWorld = i.posWS;
 	posData.viewDiretion = normalize(i.viewDir);
 
-	GBuffer0 = half4(brdfData.diffuse.rgb, 0);
-	GBuffer1 = half4(posData.normalWorld.rgb, 0);
-	GBuffer2 = half4(mso.g, mso.r, 0, 0);
+	return colorSum;
 }

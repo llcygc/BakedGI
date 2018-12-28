@@ -18,6 +18,7 @@
 #include "../Source/Graphics/LightManager.h"
 #include "Resources/ResourceManager.h"
 #include "../Source/Graphics/GIModules/ProbeManager.h"
+#include "Graphics\DeferredRenderer.h"
 
 #include "CompiledShaders/ClusterLightingShaderVS.h"
 #include "CompiledShaders/ClusterLightingShaderPS.h"
@@ -85,6 +86,7 @@ private:
 
 	LightManager m_LightManager;
 	ProbeManager m_ProbeManager;
+	DeferredRenderer m_DeferredRender;
 	Vector3 m_SunDirection;
 	ShadowCamera m_SunShadow;
 
@@ -203,6 +205,7 @@ void BakedGI::Startup( void )
 
 	SetupLights();
 	SetupProbes(m_Model.m_Header.boundingBox);
+	m_DeferredRender.Initialize(m_Model);
 }
 
 void BakedGI::SetupLights()
@@ -235,6 +238,7 @@ void BakedGI::Cleanup( void )
 {
     // Free up resources in an orderly fashion
 	m_Model.Clear();
+	m_DeferredRender.Release();
 }
 
 namespace Graphics
@@ -265,6 +269,8 @@ void BakedGI::Update( float deltaT )
 	m_MainScissor.top = 0;
 	m_MainScissor.right = (LONG)g_SceneColorBuffer.GetWidth();
 	m_MainScissor.bottom = (LONG)g_SceneColorBuffer.GetHeight();
+
+	m_DeferredRender.Update();
 }
 
 void BakedGI::RenderObjects(GraphicsContext& gfxContext, Matrix4 viewProjMatrix, eObjectFilter filter)
@@ -344,7 +350,9 @@ void BakedGI::RenderScene( void )
 			g_ShadowBuffer.EndRendering(gfxContext);
 		}
 
-		pfnSetupGraphicsState();
+		m_DeferredRender.Render(gfxContext, m_Model, m_Camera, m_MainViewport, m_MainScissor);
+
+		/*pfnSetupGraphicsState();
 		{
 
 			ScopedTimer _prof(L"Render Color", gfxContext);
@@ -360,7 +368,7 @@ void BakedGI::RenderScene( void )
 			gfxContext.SetViewportAndScissor(m_MainViewport, m_MainScissor);
 
 			RenderObjects(gfxContext, m_ViewProjMatrix, kOpaque);
-		}
+		}*/
 	}
 
     // Rendering something

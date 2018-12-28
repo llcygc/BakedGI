@@ -5,7 +5,7 @@
 #include "../Utils/Resouces.hlsli"
 #include "InputData.hlsli"
 
-[RootSignature(Standard_RootSig)]
+[RootSignature(GBuffer_RootSig)]
 VertexOutput main(VertexInput v)
 {
 	VertexOutput o = (VertexOutput)0;
