@@ -14,9 +14,9 @@ void DeferredRenderer::Initialize(const Model& model)
 {
 	uint32_t width = g_SceneColorBuffer.GetWidth();
 	uint32_t height = g_SceneColorBuffer.GetHeight();
-	GBuffer0.Create(L"G-Buffer 0", width, height, 0, DXGI_FORMAT::DXGI_FORMAT_R8G8B8A8_TYPELESS);
-	GBuffer1.Create(L"G-Buffer 1", width, height, 0, DXGI_FORMAT::DXGI_FORMAT_R8G8B8A8_TYPELESS);
-	GBuffer2.Create(L"G-Buffer 2", width, height, 0, DXGI_FORMAT::DXGI_FORMAT_R8G8B8A8_TYPELESS);
+	GBuffer0.Create(L"G-Buffer 0", width, height, 1, DXGI_FORMAT::DXGI_FORMAT_R8G8B8A8_UNORM);
+	GBuffer1.Create(L"G-Buffer 1", width, height, 1, DXGI_FORMAT::DXGI_FORMAT_R8G8B8A8_UNORM);
+	GBuffer2.Create(L"G-Buffer 2", width, height, 1, DXGI_FORMAT::DXGI_FORMAT_R8G8B8A8_UNORM);
 
 	SamplerDesc DefaultSamplerDesc;
 	DefaultSamplerDesc.MaxAnisotropy = 8;
@@ -31,7 +31,7 @@ void DeferredRenderer::Initialize(const Model& model)
 	m_LitSig.Reset(4, 0);
 	m_LitSig[0].InitAsConstants(0, 4);
 	m_LitSig[1].InitAsConstantBuffer(1);
-	m_LitSig[2].InitAsBufferUAV(5);
+	m_LitSig[2].InitAsDescriptorRange(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 0, 1);
 	m_LitSig[3].InitAsDescriptorRange(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 0, 3);
 	m_LitSig.Finalize(L"Deferred Lightinig");
 
@@ -49,7 +49,7 @@ void DeferredRenderer::Initialize(const Model& model)
 
 	m_GBufferPSO.SetRootSignature(m_GBufferSig);
 	m_GBufferPSO.SetRasterizerState(RasterizerDefault);
-	m_GBufferPSO.SetBlendState(BlendNoColorWrite);
+	m_GBufferPSO.SetBlendState(BlendDisable);
 	m_GBufferPSO.SetDepthStencilState(DepthStateReadWrite);
 	m_GBufferPSO.SetInputLayout(_countof(vertElem), vertElem);
 	m_GBufferPSO.SetPrimitiveTopologyType(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE);
@@ -57,6 +57,10 @@ void DeferredRenderer::Initialize(const Model& model)
 	m_GBufferPSO.SetVertexShader(g_pGBufferShaderVS, sizeof(g_pGBufferShaderVS));
 	m_GBufferPSO.SetPixelShader(g_pGBufferShaderPS, sizeof(g_pGBufferShaderPS));
 	m_GBufferPSO.Finalize();
+
+	m_DeferredLightingPSO.SetRootSignature(m_LitSig);
+	m_DeferredLightingPSO.SetComputeShader(g_pDeferredLightingCS, sizeof(g_pDeferredLightingCS));
+	m_DeferredLightingPSO.Finalize();
 
 	m_pMaterialIsCutout.resize(model.m_Header.materialCount);
 	for (uint32_t i = 0; i < model.m_Header.materialCount; ++i)
@@ -117,10 +121,10 @@ void DeferredRenderer::RenderObjects(GraphicsContext& gfxContext, const Model& m
 				continue;
 
 			materialIdx = mesh.materialIndex;
-			gfxContext.SetDynamicDescriptors(2, 0, 6, model.GetSRVs(materialIdx));
+			gfxContext.SetDynamicDescriptors(1, 0, 6, model.GetSRVs(materialIdx));
 		}
 
-		gfxContext.SetConstants(4, baseVertex, materialIdx);
+		gfxContext.SetConstants(2, baseVertex, materialIdx);
 		gfxContext.DrawIndexed(indexCount, startIndex, baseVertex);
 	}
 }
@@ -168,10 +172,10 @@ void DeferredRenderer::Render(GraphicsContext& gfxContext, const Model& model, c
 		cc.TransitionResource(g_SceneColorBuffer, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 
 		cc.SetRootSignature(m_LitSig);
-		cc.SetPipelineState(DeferredLightingPSO);
+		cc.SetPipelineState(m_DeferredLightingPSO);
 		D3D12_CPU_DESCRIPTOR_HANDLE gBufferSRVs[3] = { GBuffer0.GetSRV(), GBuffer1.GetSRV(), GBuffer2.GetSRV() };
+		cc.SetDynamicDescriptors(2, 0, 1, &g_SceneColorBuffer.GetUAV());
 		cc.SetDynamicDescriptors(3, 0, 3, gBufferSRVs);
-		cc.SetDynamicDescriptor(2, 0, g_SceneColorBuffer.GetUAV());
 		cc.Dispatch2D(g_SceneColorBuffer.GetWidth(), g_SceneColorBuffer.GetHeight());
 	}
 

@@ -9,6 +9,7 @@
 
 #include "CompiledShaders/GBufferShaderVS.h"
 #include "CompiledShaders/GBufferShaderPS.h"
+#include "CompiledShaders/DeferredLightingCS.h"
 
 using namespace Graphics;
 
@@ -36,7 +37,7 @@ private:
 
 	GraphicsPSO m_GBufferPSO;
 	GraphicsPSO m_GBufferCutoutPSO;
-	ComputePSO DeferredLightingPSO;
+	ComputePSO m_DeferredLightingPSO;
 
 	std::vector<bool> m_pMaterialIsCutout;
 

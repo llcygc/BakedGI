@@ -65,3 +65,10 @@ struct VertexOutputShadowCutout
     float4 clipPos : SV_Position;
     float2 uv : TexCoord0;
 };
+
+struct PixelOutputDeferred
+{
+    float4 GBuffer0 : SV_Target0;
+    float4 GBuffer1 : SV_Target1;
+    float4 GBuffer2 : SV_Target2;
+};
