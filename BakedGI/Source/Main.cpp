@@ -19,11 +19,12 @@
 #include "Resources/ResourceManager.h"
 #include "../Source/Graphics/GIModules/ProbeManager.h"
 #include "Graphics\DeferredRenderer.h"
+#include "Scene\Scene.h"
 
-#include "CompiledShaders/ClusterLightingShaderVS.h"
-#include "CompiledShaders/ClusterLightingShaderPS.h"
-#include "CompiledShaders/DepthShaderVS.h"
-#include "CompiledShaders/DepthShaderPS.h"
+//#include "CompiledShaders/ClusterLightingShaderVS.h"
+//#include "CompiledShaders/ClusterLightingShaderPS.h"
+//#include "CompiledShaders/DepthShaderVS.h"
+//#include "CompiledShaders/DepthShaderPS.h"
 #include "CompiledShaders/ShadowCasterShaderVS.h"
 #include "CompiledShaders/ShadowCasterShaderPS.h"
 
@@ -48,14 +49,10 @@ private:
 
 	enum eObjectFilter { kOpaque = 0x1, kCutout = 0x2, kTransparent = 0x4, kAll = 0xF, kNone = 0x0 };
 
-	Camera m_Camera;
-	std::auto_ptr<CameraController> m_CameraController;
-	Matrix4 m_ViewProjMatrix;
 	D3D12_VIEWPORT m_MainViewport;
 	D3D12_RECT m_MainScissor;
 
-	Model m_Model;
-	std::vector<bool> m_pMaterialIsCutout;
+	Scene m_Scene;
 
 	RootSignature m_RootSig;
 	GraphicsPSO m_DepthPSO;
@@ -177,39 +174,16 @@ void BakedGI::Startup( void )
 
 	TextureManager::Initialize(ResourceManager::GetResourceRootPathWide() + L"Textures/");
 	std::string modelPath = "Models/sponza.h3d";
-	ASSERT(m_Model.Load((ResourceManager::GetResourceRootPath() + modelPath).c_str()));
-	ASSERT(m_Model.m_Header.meshCount > 0, "Model has no mesh in it");
-
-	m_pMaterialIsCutout.resize(m_Model.m_Header.materialCount);
-	for (uint32_t i = 0; i < m_Model.m_Header.materialCount; ++i)
-	{
-		const Model::Material& mat = m_Model.m_pMaterial[i];
-		if (std::string(mat.texDiffusePath).find("thorn") != std::string::npos ||
-			std::string(mat.texDiffusePath).find("plant") != std::string::npos ||
-			std::string(mat.texDiffusePath).find("chain") != std::string::npos)
-		{
-			m_pMaterialIsCutout[i] = true;
-		}
-		else
-		{
-			m_pMaterialIsCutout[i] = false;
-		}
-
-	}
-
-	float modelRadius = Length(m_Model.m_Header.boundingBox.max - m_Model.m_Header.boundingBox.min) * .5f;
-	const Vector3 eye = (m_Model.m_Header.boundingBox.min + m_Model.m_Header.boundingBox.max) * .5f + Vector3(modelRadius * .5f, 0.0f, 0.0f);
-	m_Camera.SetEyeAtUp(eye, Vector3(kZero), Vector3(kYUnitVector));
-	m_Camera.SetZRange(1.0f, 10000.0f);
-	m_CameraController.reset(new CameraController(m_Camera, Vector3(kYUnitVector)));
+	m_Scene.Initialize(modelPath);
 
 	SetupLights();
-	SetupProbes(m_Model.m_Header.boundingBox);
-	m_DeferredRender.Initialize(m_Model);
+	SetupProbes(m_Scene.GetSceneBoundingBox());
+	m_DeferredRender.Initialize();
 }
 
 void BakedGI::SetupLights()
 {
+	m_LightManager.Initialize();
 	LightData dirLight;
 
 	float costheta = cosf(m_SunOrientation);
@@ -237,8 +211,8 @@ void BakedGI::SetupProbes(Model::BoundingBox box)
 void BakedGI::Cleanup( void )
 {
     // Free up resources in an orderly fashion
-	m_Model.Clear();
 	m_DeferredRender.Release();
+	m_LightManager.Release();
 }
 
 namespace Graphics
@@ -255,9 +229,6 @@ void BakedGI::Update( float deltaT )
 	else if (GameInput::IsFirstPressed(GameInput::kRShoulder))
 		DebugZoom.Increment();
 
-	m_CameraController->Update(deltaT);
-	m_ViewProjMatrix = m_Camera.GetViewProjMatrix();
-
 	m_MainViewport.TopLeftX = 0.5f;
 	m_MainViewport.TopLeftY = 0.5f;
 	m_MainViewport.Width = (float)g_SceneColorBuffer.GetWidth();
@@ -270,105 +241,89 @@ void BakedGI::Update( float deltaT )
 	m_MainScissor.right = (LONG)g_SceneColorBuffer.GetWidth();
 	m_MainScissor.bottom = (LONG)g_SceneColorBuffer.GetHeight();
 
+	m_Scene.Update(deltaT);
 	m_DeferredRender.Update();
 }
 
-void BakedGI::RenderObjects(GraphicsContext& gfxContext, Matrix4 viewProjMatrix, eObjectFilter filter)
-{
-	struct VSConstants
-	{
-		//Matrix4 viewMatrix;
-		//Matrix4 projMatrix;
-		Matrix4 viewProjMatrix;
-		//Matrix4 clusterMatrix;
-		//Vector4 screenParam;
-		//Vector4 projectionParam;
-		XMFLOAT3 cameraPos;
-	} perCameraConstants;
-
-	perCameraConstants.viewProjMatrix = viewProjMatrix;
-	XMStoreFloat3(&perCameraConstants.cameraPos, m_Camera.GetPosition());
-
-	gfxContext.SetDynamicConstantBufferView(0, sizeof(perCameraConstants), &perCameraConstants);
-
-	uint32_t materialIdx = 0xFFFFFFFFul;
-
-	uint32_t VertexStride = m_Model.m_VertexStride;
-
-	for (uint32_t meshIndex = 0; meshIndex < m_Model.m_Header.meshCount; meshIndex++)
-	{
-		const Model::Mesh& mesh = m_Model.m_pMesh[meshIndex];
-
-		uint32_t indexCount = mesh.indexCount;
-		uint32_t startIndex = mesh.indexDataByteOffset / sizeof(uint16_t);
-		uint32_t baseVertex = mesh.vertexDataByteOffset / VertexStride;
-
-		if (mesh.materialIndex != materialIdx)
-		{
-			if (m_pMaterialIsCutout[mesh.materialIndex] && !(filter & kCutout) ||
-				!m_pMaterialIsCutout[mesh.materialIndex] && !(filter & kOpaque))
-				continue;
-
-			materialIdx = mesh.materialIndex;
-			gfxContext.SetDynamicDescriptors(2, 0, 6, m_Model.GetSRVs(materialIdx));
-		}
-
-		gfxContext.SetConstants(4, baseVertex, materialIdx);
-		gfxContext.DrawIndexed(indexCount, startIndex, baseVertex);
-	}
-}
+//void BakedGI::RenderObjects(GraphicsContext& gfxContext, Matrix4 viewProjMatrix, eObjectFilter filter)
+//{
+//	struct VSConstants
+//	{
+//		//Matrix4 viewMatrix;
+//		//Matrix4 projMatrix;
+//		Matrix4 viewProjMatrix;
+//		//Matrix4 clusterMatrix;
+//		//Vector4 screenParam;
+//		//Vector4 projectionParam;
+//		XMFLOAT3 cameraPos;
+//	} perCameraConstants;
+//
+//	perCameraConstants.viewProjMatrix = viewProjMatrix;
+//	XMStoreFloat3(&perCameraConstants.cameraPos, m_Camera.GetPosition());
+//
+//	gfxContext.SetDynamicConstantBufferView(0, sizeof(perCameraConstants), &perCameraConstants);
+//
+//	uint32_t materialIdx = 0xFFFFFFFFul;
+//
+//	uint32_t VertexStride = m_Model.m_VertexStride;
+//
+//	for (uint32_t meshIndex = 0; meshIndex < m_Model.m_Header.meshCount; meshIndex++)
+//	{
+//		const Model::Mesh& mesh = m_Model.m_pMesh[meshIndex];
+//
+//		uint32_t indexCount = mesh.indexCount;
+//		uint32_t startIndex = mesh.indexDataByteOffset / sizeof(uint16_t);
+//		uint32_t baseVertex = mesh.vertexDataByteOffset / VertexStride;
+//
+//		if (mesh.materialIndex != materialIdx)
+//		{
+//			if (m_pMaterialIsCutout[mesh.materialIndex] && !(filter & kCutout) ||
+//				!m_pMaterialIsCutout[mesh.materialIndex] && !(filter & kOpaque))
+//				continue;
+//
+//			materialIdx = mesh.materialIndex;
+//			gfxContext.SetDynamicDescriptors(2, 0, 6, m_Model.GetSRVs(materialIdx));
+//		}
+//
+//		gfxContext.SetConstants(4, baseVertex, materialIdx);
+//		gfxContext.DrawIndexed(indexCount, startIndex, baseVertex);
+//	}
+//}
 
 void BakedGI::RenderScene( void )
 {
     GraphicsContext& gfxContext = GraphicsContext::Begin(L"Scene Render");
 
 	{
-		ScopedTimer _prof(L"Render Color", gfxContext);
+		//ScopedTimer _prof(L"Render Color", gfxContext);
 
-		// Set the default state for command lists
-		auto& pfnSetupGraphicsState = [&](void)
-		{
-			gfxContext.SetRootSignature(m_RootSig);
-			gfxContext.SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-			gfxContext.SetIndexBuffer(m_Model.m_IndexBuffer.IndexBufferView());
-			gfxContext.SetVertexBuffer(0, m_Model.m_VertexBuffer.VertexBufferView());
-		};
+		//// Set the default state for command lists
+		//auto& pfnSetupGraphicsState = [&](void)
+		//{
+		//	gfxContext.SetRootSignature(m_RootSig);
+		//	gfxContext.SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		//	gfxContext.SetIndexBuffer(m_Model.m_IndexBuffer.IndexBufferView());
+		//	gfxContext.SetVertexBuffer(0, m_Model.m_VertexBuffer.VertexBufferView());
+		//};
 
-		gfxContext.TransitionResource(g_SceneColorBuffer, D3D12_RESOURCE_STATE_RENDER_TARGET, true);
-		gfxContext.ClearColor(g_SceneColorBuffer);
+		//gfxContext.TransitionResource(g_SceneColorBuffer, D3D12_RESOURCE_STATE_RENDER_TARGET, true);
+		//gfxContext.ClearColor(g_SceneColorBuffer);
 
-		pfnSetupGraphicsState();
+		//pfnSetupGraphicsState();
 
-		{
-			ScopedTimer _prof(L"Render Shadow Map", gfxContext);
-			
-			g_ShadowBuffer.BeginRendering(gfxContext);
-			gfxContext.SetPipelineState(m_ShadowPSO);
-			RenderObjects(gfxContext, m_SunShadow.GetViewProjMatrix(), kOpaque);
-			//gfxContext.SetPipelineState(m_CutoutShadowPSO);
-			//RenderObjects(gfxContext, m_SunShadow.GetViewProjMatrix(), kCutout);
-			g_ShadowBuffer.EndRendering(gfxContext);
-		}
+		//{
+		//	ScopedTimer _prof(L"Render Shadow Map", gfxContext);
+		//	
+		//	g_ShadowBuffer.BeginRendering(gfxContext);
+		//	gfxContext.SetPipelineState(m_ShadowPSO);
+		//	RenderObjects(gfxContext, m_SunShadow.GetViewProjMatrix(), kOpaque);
+		//	//gfxContext.SetPipelineState(m_CutoutShadowPSO);
+		//	//RenderObjects(gfxContext, m_SunShadow.GetViewProjMatrix(), kCutout);
+		//	g_ShadowBuffer.EndRendering(gfxContext);
+		//}
 
-		m_DeferredRender.Render(gfxContext, m_Model, m_Camera, m_MainViewport, m_MainScissor);
-
-		/*pfnSetupGraphicsState();
-		{
-
-			ScopedTimer _prof(L"Render Color", gfxContext);
-
-			gfxContext.TransitionResource(g_SceneDepthBuffer, D3D12_RESOURCE_STATE_DEPTH_WRITE, true);
-			gfxContext.ClearDepth(g_SceneDepthBuffer);
-			gfxContext.SetDynamicDescriptors(3, 0, 1, &m_ExtraTextures);
-			gfxContext.SetPipelineState(m_ModelPSO);
-
-			m_LightManager.PrepareLightsDataForGPU(gfxContext);
-
-			gfxContext.SetRenderTarget(g_SceneColorBuffer.GetRTV(), g_SceneDepthBuffer.GetDSV());
-			gfxContext.SetViewportAndScissor(m_MainViewport, m_MainScissor);
-
-			RenderObjects(gfxContext, m_ViewProjMatrix, kOpaque);
-		}*/
+		m_LightManager.RenderShadows(gfxContext, m_Scene);
+		m_DeferredRender.Render(gfxContext, m_Scene, m_MainViewport, m_MainScissor, m_LightManager);
 	}
 
     // Rendering something

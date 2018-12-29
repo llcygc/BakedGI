@@ -6,6 +6,8 @@
 #include "Model.h"
 #include "Camera.h"
 #include "BufferManager.h"
+#include "LightManager.h"
+#include "../Scene/Scene.h"
 
 #include "CompiledShaders/GBufferShaderVS.h"
 #include "CompiledShaders/GBufferShaderPS.h"
@@ -19,14 +21,12 @@ public:
 	DeferredRenderer();
 	~DeferredRenderer();
 
-	void Initialize(const Model& model);
+	void Initialize();
 	void Update();
-	void Render(GraphicsContext& gfxContext, const Model& model, const Camera& cam, D3D12_VIEWPORT viewport, D3D12_RECT scissor);
+	void Render(GraphicsContext& gfxContext, Scene& scene, D3D12_VIEWPORT viewport, D3D12_RECT scissor, LightManager& lightManger);
 	void Release();
 
 private:
-
-	enum eObjectFilter { kOpaque = 0x1, kCutout = 0x2, kTransparent = 0x4, kAll = 0xF, kNone = 0x0 };
 
 	RootSignature m_GBufferSig;
 	RootSignature m_LitSig;
@@ -38,9 +38,5 @@ private:
 	GraphicsPSO m_GBufferPSO;
 	GraphicsPSO m_GBufferCutoutPSO;
 	ComputePSO m_DeferredLightingPSO;
-
-	std::vector<bool> m_pMaterialIsCutout;
-
-	void RenderObjects(GraphicsContext& gfxContext, const Model& model, const Camera& cam, eObjectFilter filter);
 };
 

@@ -9,16 +9,18 @@
 #include "DepthBuffer.h"
 #include "PipelineState.h"
 #include "RootSignature.h"
+#include "BufferManager.h"
+
+#include "CompiledShaders/ClusterLightingShaderVS.h"
+#include "CompiledShaders/ClusterLightingShaderPS.h"
 
 using namespace Math;
+using namespace Graphics;
 
 struct ProbeMap
 {
 	Vector3 position;
 	Matrix4 cubeMatrices[6];
-	ColorBuffer irradianceMap;
-	ColorBuffer normalMap;
-	ColorBuffer distance;
 };
 
 class ProbeManager
@@ -43,11 +45,16 @@ private:
 	ColorBuffer m_normalMapOctan;
 	ColorBuffer m_distanceMapOctan;
 
+	ColorBuffer m_irradianceMapCube;
+	ColorBuffer m_normalMapCube;
+	ColorBuffer m_distanceMapCube;
+
 	DepthBuffer m_depthBuffer;
 	StructuredBuffer m_ProbeMatrixBuffer;
 
 	GraphicsPSO m_debugDisplayPSO;
 	GraphicsPSO m_probeRenderPSO;
+	ComputePSO m_CubeToOctanPSO;
 
 	RootSignature m_debugDisplayRootSig;
 	RootSignature m_probeRenderRootSig;

@@ -4,6 +4,7 @@
 #include "PipelineState.h"
 #include "GpuBuffer.h"
 #include "ShadowManager.h"
+#include "../Scene/Scene.h"
 
 using namespace Math;
 
@@ -41,12 +42,14 @@ public:
 	LightManager();
 	~LightManager();
 
+	void Initialize();
 	void AddLocalLight(LightData l, bool clear = true);
 	void SetDirectionalLight(LightData l);
-	void PrepareLightsDataForGPU(GraphicsContext& gfxContext);
-	void ClusterLightAssignment(GraphicsContext gfxContext);
-
-public:
+	void PrepareLightsDataForGPU(GraphicsContext& gfxContext, uint32_t rootIndex); 
+	void PrepareLightsDataForGPUCS(ComputeContext& csContext, uint32_t rootIndex);
+	void ClusterLightAssignment(GraphicsContext& gfxContext);
+	void RenderShadows(GraphicsContext& gfxContext, Scene& scene);
+	void Release();
 
 private:
 	static const int MAX_LOCAL_LIGHTS_COUNT = 64;

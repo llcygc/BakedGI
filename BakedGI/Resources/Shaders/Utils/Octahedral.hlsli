@@ -48,5 +48,5 @@ float2 unorm8x3_to_snorm12x2(float3 u)
     u.y *= (1.0 / 16.0);
     float2 s = float2(u.x * 16.0 + floor(u.y),
     frac(u.y) * (16.0 * 256.0) + u.z);
-    return clamp(s * (1.0 / 2047.0) - 1.0, float2(-1.0), float2(1.0));
+    return clamp(s * (1.0 / 2047.0) - 1.0, float2(-1.0, -1.0), float2(1.0, 1.0));
 }
