@@ -21,13 +21,6 @@
 #include "Graphics\DeferredRenderer.h"
 #include "Scene\Scene.h"
 
-//#include "CompiledShaders/ClusterLightingShaderVS.h"
-//#include "CompiledShaders/ClusterLightingShaderPS.h"
-//#include "CompiledShaders/DepthShaderVS.h"
-//#include "CompiledShaders/DepthShaderPS.h"
-#include "CompiledShaders/ShadowCasterShaderVS.h"
-#include "CompiledShaders/ShadowCasterShaderPS.h"
-
 using namespace GameCore;
 using namespace Graphics;
 
@@ -133,7 +126,7 @@ void BakedGI::Startup( void )
 		{ "BITANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
 	};
 
-	m_DepthPSO.SetRootSignature(m_RootSig);
+	/*m_DepthPSO.SetRootSignature(m_RootSig);
 	m_DepthPSO.SetRasterizerState(RasterizerDefault);
 	m_DepthPSO.SetBlendState(BlendNoColorWrite);
 	m_DepthPSO.SetDepthStencilState(DepthStateReadWrite);
@@ -168,7 +161,7 @@ void BakedGI::Startup( void )
 
 	m_CutoutModelPSO = m_ModelPSO;
 	m_CutoutModelPSO.SetRasterizerState(RasterizerTwoSided);
-	m_CutoutModelPSO.Finalize();
+	m_CutoutModelPSO.Finalize();*/
 
 	m_ExtraTextures = g_ShadowBuffer.GetSRV();
 
@@ -199,7 +192,7 @@ void BakedGI::SetupLights()
 	m_SunShadow.UpdateMatrix(-m_SunDirection, Vector3(0, -500.0f, 0), Vector3(ShadowDimX, ShadowDimY, ShadowDimZ),
 		(uint32_t)g_ShadowBuffer.GetWidth(), (uint32_t)g_ShadowBuffer.GetHeight(), 16);
 	dirLight.worldToShadowMatrix = m_SunShadow.GetShadowMatrix();
-
+	dirLight.viewProjMatrix = m_SunShadow.GetViewProjMatrix();
 	m_LightManager.SetDirectionalLight(dirLight);
 }
 
@@ -245,83 +238,11 @@ void BakedGI::Update( float deltaT )
 	m_DeferredRender.Update();
 }
 
-//void BakedGI::RenderObjects(GraphicsContext& gfxContext, Matrix4 viewProjMatrix, eObjectFilter filter)
-//{
-//	struct VSConstants
-//	{
-//		//Matrix4 viewMatrix;
-//		//Matrix4 projMatrix;
-//		Matrix4 viewProjMatrix;
-//		//Matrix4 clusterMatrix;
-//		//Vector4 screenParam;
-//		//Vector4 projectionParam;
-//		XMFLOAT3 cameraPos;
-//	} perCameraConstants;
-//
-//	perCameraConstants.viewProjMatrix = viewProjMatrix;
-//	XMStoreFloat3(&perCameraConstants.cameraPos, m_Camera.GetPosition());
-//
-//	gfxContext.SetDynamicConstantBufferView(0, sizeof(perCameraConstants), &perCameraConstants);
-//
-//	uint32_t materialIdx = 0xFFFFFFFFul;
-//
-//	uint32_t VertexStride = m_Model.m_VertexStride;
-//
-//	for (uint32_t meshIndex = 0; meshIndex < m_Model.m_Header.meshCount; meshIndex++)
-//	{
-//		const Model::Mesh& mesh = m_Model.m_pMesh[meshIndex];
-//
-//		uint32_t indexCount = mesh.indexCount;
-//		uint32_t startIndex = mesh.indexDataByteOffset / sizeof(uint16_t);
-//		uint32_t baseVertex = mesh.vertexDataByteOffset / VertexStride;
-//
-//		if (mesh.materialIndex != materialIdx)
-//		{
-//			if (m_pMaterialIsCutout[mesh.materialIndex] && !(filter & kCutout) ||
-//				!m_pMaterialIsCutout[mesh.materialIndex] && !(filter & kOpaque))
-//				continue;
-//
-//			materialIdx = mesh.materialIndex;
-//			gfxContext.SetDynamicDescriptors(2, 0, 6, m_Model.GetSRVs(materialIdx));
-//		}
-//
-//		gfxContext.SetConstants(4, baseVertex, materialIdx);
-//		gfxContext.DrawIndexed(indexCount, startIndex, baseVertex);
-//	}
-//}
-
 void BakedGI::RenderScene( void )
 {
     GraphicsContext& gfxContext = GraphicsContext::Begin(L"Scene Render");
 
 	{
-		//ScopedTimer _prof(L"Render Color", gfxContext);
-
-		//// Set the default state for command lists
-		//auto& pfnSetupGraphicsState = [&](void)
-		//{
-		//	gfxContext.SetRootSignature(m_RootSig);
-		//	gfxContext.SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-		//	gfxContext.SetIndexBuffer(m_Model.m_IndexBuffer.IndexBufferView());
-		//	gfxContext.SetVertexBuffer(0, m_Model.m_VertexBuffer.VertexBufferView());
-		//};
-
-		//gfxContext.TransitionResource(g_SceneColorBuffer, D3D12_RESOURCE_STATE_RENDER_TARGET, true);
-		//gfxContext.ClearColor(g_SceneColorBuffer);
-
-		//pfnSetupGraphicsState();
-
-		//{
-		//	ScopedTimer _prof(L"Render Shadow Map", gfxContext);
-		//	
-		//	g_ShadowBuffer.BeginRendering(gfxContext);
-		//	gfxContext.SetPipelineState(m_ShadowPSO);
-		//	RenderObjects(gfxContext, m_SunShadow.GetViewProjMatrix(), kOpaque);
-		//	//gfxContext.SetPipelineState(m_CutoutShadowPSO);
-		//	//RenderObjects(gfxContext, m_SunShadow.GetViewProjMatrix(), kCutout);
-		//	g_ShadowBuffer.EndRendering(gfxContext);
-		//}
-
 		m_LightManager.RenderShadows(gfxContext, m_Scene);
 		m_DeferredRender.Render(gfxContext, m_Scene, m_MainViewport, m_MainScissor, m_LightManager);
 	}

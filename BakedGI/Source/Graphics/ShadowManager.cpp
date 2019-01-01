@@ -19,11 +19,11 @@ void ShadowManager::Initialize()
 	m_ShadowRootSig.Reset(5, 2);
 	m_ShadowRootSig.InitStaticSampler(0, DefaultSamplerDesc, D3D12_SHADER_VISIBILITY_PIXEL);
 	m_ShadowRootSig.InitStaticSampler(1, SamplerShadowDesc, D3D12_SHADER_VISIBILITY_PIXEL);
-	m_ShadowRootSig[0].InitAsConstantBuffer(0, D3D12_SHADER_VISIBILITY_VERTEX);
-	m_ShadowRootSig[1].InitAsConstantBuffer(0, D3D12_SHADER_VISIBILITY_PIXEL);
+	m_ShadowRootSig[0].InitAsConstants(1, 2, D3D12_SHADER_VISIBILITY_VERTEX);
+	m_ShadowRootSig[1].InitAsConstantBuffer(0, D3D12_SHADER_VISIBILITY_VERTEX);
 	m_ShadowRootSig[2].InitAsDescriptorRange(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 0, 6, D3D12_SHADER_VISIBILITY_PIXEL);
-	m_ShadowRootSig[3].InitAsDescriptorRange(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 64, 6, D3D12_SHADER_VISIBILITY_PIXEL);
-	m_ShadowRootSig[4].InitAsConstants(1, 2, D3D12_SHADER_VISIBILITY_VERTEX);
+	m_ShadowRootSig[3].InitAsConstantBuffer(0, D3D12_SHADER_VISIBILITY_PIXEL);
+	m_ShadowRootSig[4].InitAsDescriptorRange(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 64, 6, D3D12_SHADER_VISIBILITY_PIXEL);
 	m_ShadowRootSig.Finalize(L"Render Shadow", D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
 
 	D3D12_INPUT_ELEMENT_DESC vertElem[] =

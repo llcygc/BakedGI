@@ -45,7 +45,7 @@ void LightManager::ClusterLightAssignment(GraphicsContext& gfxContext)
 
 void LightManager::RenderShadows(GraphicsContext& gfxContext, Scene& scene)
 {
-	m_ShadowManager.Render(gfxContext, scene, m_DirectionalLight.worldToShadowMatrix);
+	m_ShadowManager.Render(gfxContext, scene, m_DirectionalLight.viewProjMatrix);
 }
 
 void LightManager::Release()

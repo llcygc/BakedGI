@@ -23,9 +23,9 @@ void DeferredRenderer::Initialize()
 
 	m_GBufferSig.Reset(3, 1);
 	m_GBufferSig.InitStaticSampler(0, DefaultSamplerDesc, D3D12_SHADER_VISIBILITY_PIXEL);
-	m_GBufferSig[0].InitAsConstantBuffer(0, D3D12_SHADER_VISIBILITY_VERTEX);
-	m_GBufferSig[1].InitAsDescriptorRange(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 0, 6, D3D12_SHADER_VISIBILITY_PIXEL);
-	m_GBufferSig[2].InitAsConstants(1, 2, D3D12_SHADER_VISIBILITY_VERTEX);
+	m_GBufferSig[0].InitAsConstants(1, 2, D3D12_SHADER_VISIBILITY_VERTEX);
+	m_GBufferSig[1].InitAsConstantBuffer(0, D3D12_SHADER_VISIBILITY_VERTEX);
+	m_GBufferSig[2].InitAsDescriptorRange(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 0, 6, D3D12_SHADER_VISIBILITY_PIXEL);
 	m_GBufferSig.Finalize(L"G-Buffer", D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
 
 	m_LitSig.Reset(6, 1);
@@ -70,51 +70,6 @@ void DeferredRenderer::Update()
 {
 
 }
-
-//void DeferredRenderer::RenderObjects(GraphicsContext& gfxContext, const Model& model, const Camera& cam, eObjectFilter filter)
-//{
-//	struct VSConstants
-//	{
-//		//Matrix4 viewMatrix;
-//		//Matrix4 projMatrix;
-//		Matrix4 viewProjMatrix;
-//		//Matrix4 clusterMatrix;
-//		//Vector4 screenParam;
-//		//Vector4 projectionParam;
-//		XMFLOAT3 cameraPos;
-//	} perCameraConstants;
-//
-//	perCameraConstants.viewProjMatrix = cam.GetViewProjMatrix();
-//	XMStoreFloat3(&perCameraConstants.cameraPos, cam.GetPosition());
-//
-//	gfxContext.SetDynamicConstantBufferView(0, sizeof(perCameraConstants), &perCameraConstants);
-//
-//	uint32_t materialIdx = 0xFFFFFFFFul;
-//
-//	uint32_t VertexStride = model.m_VertexStride;
-//
-//	for (uint32_t meshIndex = 0; meshIndex < model.m_Header.meshCount; meshIndex++)
-//	{
-//		const Model::Mesh& mesh = model.m_pMesh[meshIndex];
-//
-//		uint32_t indexCount = mesh.indexCount;
-//		uint32_t startIndex = mesh.indexDataByteOffset / sizeof(uint16_t);
-//		uint32_t baseVertex = mesh.vertexDataByteOffset / VertexStride;
-//
-//		if (mesh.materialIndex != materialIdx)
-//		{
-//			if (m_pMaterialIsCutout[mesh.materialIndex] && !(filter & kCutout) ||
-//				!m_pMaterialIsCutout[mesh.materialIndex] && !(filter & kOpaque))
-//				continue;
-//
-//			materialIdx = mesh.materialIndex;
-//			gfxContext.SetDynamicDescriptors(1, 0, 6, model.GetSRVs(materialIdx));
-//		}
-//
-//		gfxContext.SetConstants(2, baseVertex, materialIdx);
-//		gfxContext.DrawIndexed(indexCount, startIndex, baseVertex);
-//	}
-//}
 
 void DeferredRenderer::Render(GraphicsContext& gfxContext, Scene& scene, D3D12_VIEWPORT viewport, D3D12_RECT scissor, LightManager& lightManger)
 {

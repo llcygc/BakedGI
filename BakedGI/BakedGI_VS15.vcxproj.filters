@@ -191,6 +191,7 @@
     <None Include="Resources\Shaders\Utils\BasicUtils.hlsli" />
     <None Include="Resources\Shaders\Utils\Octahedral.hlsli" />
     <None Include="Resources\Shaders\Lighting\DeferredLightingRS.hlsli" />
+    <None Include="Resources\Shaders\Probe\ProbeRS.hlsli" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Resources\Shaders\Lighting\ClusterLightingShaderVS.hlsl">
@@ -208,5 +209,11 @@
     <FxCompile Include="Resources\Shaders\Lighting\GBufferShaderPS.hlsl" />
     <FxCompile Include="Resources\Shaders\Lighting\GBufferShaderCutoutPS.hlsl" />
     <FxCompile Include="Resources\Shaders\Lighting\DeferredLightingCS.hlsl" />
+    <FxCompile Include="Resources\Shaders\Probe\MinMipCS.hlsl" />
+    <FxCompile Include="Resources\Shaders\Probe\CubeToOctanCS.hlsl" />
+    <FxCompile Include="Resources\Shaders\Probe\ProbeRenderVS.hlsl" />
+    <FxCompile Include="Resources\Shaders\Probe\ProbeRenderPS.hlsl" />
+    <FxCompile Include="Resources\Shaders\Probe\ProbeTraceCS.hlsl" />
+    <FxCompile Include="Resources\Shaders\Probe\TraceTemporalCS.hlsl" />
   </ItemGroup>
 </Project>

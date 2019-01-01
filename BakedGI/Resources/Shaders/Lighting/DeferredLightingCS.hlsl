@@ -18,6 +18,7 @@ cbuffer PerCamera : register(b1)
 cbuffer DirectionalLight : register(b2)
 {
 	float4x4 dirShadowMatrix;
+    float4x4 shadowViewProjMatrix;
 	float4 positionType;
 	float4 colorAngle;
 	float4 forwardRange;
@@ -35,7 +36,8 @@ SamplerComparisonState shadowSampler : register(s0);
 
 float GetShadow(float3 worldPos)
 {
-	float3 ShadowCoord = mul(dirShadowMatrix, float4(worldPos, 1.0)).xyz;
+    float3 ShadowCoord = mul(dirShadowMatrix, float4(worldPos, 1.0)).xyz;
+    ShadowCoord.z += 0.005;
 	const float Dilation = 2.0;
 	float d1 = Dilation * shadowParams.z * 0.125;
 	float d2 = Dilation * shadowParams.z * 0.875;

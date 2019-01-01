@@ -63,7 +63,7 @@ void Scene::RenderScene(GraphicsContext& gfxContext, eObjectFilter filter)
 	perCameraConstants.viewProjMatrix = m_Camera.GetViewProjMatrix();
 	XMStoreFloat3(&perCameraConstants.cameraPos, m_Camera.GetPosition());
 
-	gfxContext.SetDynamicConstantBufferView(0, sizeof(perCameraConstants), &perCameraConstants);
+	gfxContext.SetDynamicConstantBufferView(1, sizeof(perCameraConstants), &perCameraConstants);
 
 	uint32_t materialIdx = 0xFFFFFFFFul;
 
@@ -87,12 +87,12 @@ void Scene::RenderScene(GraphicsContext& gfxContext, eObjectFilter filter)
 			gfxContext.SetDynamicDescriptors(2, 0, 6, m_Model.GetSRVs(materialIdx));
 		}
 
-		gfxContext.SetConstants(2, baseVertex, materialIdx);
+		gfxContext.SetConstants(0, baseVertex, materialIdx);
 		gfxContext.DrawIndexed(indexCount, startIndex, baseVertex);
 	}
 }
 
-void Scene::RenderScene(GraphicsContext& gfxContext, Matrix4 vieProjMatrix, eObjectFilter filter)
+void Scene::RenderScene(GraphicsContext& gfxContext, Matrix4 ViewProjMatrix, eObjectFilter filter)
 {
 	gfxContext.SetIndexBuffer(m_Model.m_IndexBuffer.IndexBufferView());
 	gfxContext.SetVertexBuffer(0, m_Model.m_VertexBuffer.VertexBufferView());
@@ -108,10 +108,10 @@ void Scene::RenderScene(GraphicsContext& gfxContext, Matrix4 vieProjMatrix, eObj
 		XMFLOAT3 cameraPos;
 	} perCameraConstants;
 
-	perCameraConstants.viewProjMatrix = vieProjMatrix;
+	perCameraConstants.viewProjMatrix = ViewProjMatrix;
 	XMStoreFloat3(&perCameraConstants.cameraPos, m_Camera.GetPosition());
 
-	gfxContext.SetDynamicConstantBufferView(0, sizeof(perCameraConstants), &perCameraConstants);
+	gfxContext.SetDynamicConstantBufferView(1, sizeof(perCameraConstants), &perCameraConstants);
 
 	uint32_t materialIdx = 0xFFFFFFFFul;
 
@@ -132,10 +132,10 @@ void Scene::RenderScene(GraphicsContext& gfxContext, Matrix4 vieProjMatrix, eObj
 				continue;
 
 			materialIdx = mesh.materialIndex;
-			gfxContext.SetDynamicDescriptors(1, 0, 6, m_Model.GetSRVs(materialIdx));
+			gfxContext.SetDynamicDescriptors(2, 0, 6, m_Model.GetSRVs(materialIdx));
 		}
 
-		gfxContext.SetConstants(2, baseVertex, materialIdx);
+		gfxContext.SetConstants(0, baseVertex, materialIdx);
 		gfxContext.DrawIndexed(indexCount, startIndex, baseVertex);
 	}
 }
