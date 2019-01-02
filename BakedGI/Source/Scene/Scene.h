@@ -1,3 +1,8 @@
+// Class of a simple scene
+// Currently only a class that have a camera and MiniEngine Model in it
+// Will be expanded to support more features
+// By felix wang
+
 #pragma once
 
 #include "pch.h"
@@ -25,8 +30,16 @@ public:
 
 	//Load model and texture resouces
 	void Initialize(std::string modelPath);
+
+	//Do some update here
 	void Update(float detalT);
+
+	//Render with camera in scene (copy from ModelViewer project)
 	void RenderScene(GraphicsContext& gfxContext, eObjectFilter filter);
+	//Render with custom camera (eg. Shadow camera)
+	void RenderScene(GraphicsContext& gfxContext, const Camera& cam, eObjectFilter filter);
+
+	//will be eliminated
 	void RenderScene(GraphicsContext& gfxContext, Matrix4 vieProjMatrix, eObjectFilter filter);
 
 	const Model::BoundingBox& GetSceneBoundingBox() { return m_Model.GetBoundingBox(); }

@@ -46,10 +46,14 @@ public:
 private:
 
 	void ReprojCubetoOctan();
+	D3D12_CPU_DESCRIPTOR_HANDLE CalSubRTV(ColorBuffer& destBuffer, int probeID, int faceID);
 	void CreateCubemapResouceViews();
 
 	uint32_t m_probeCount;
 	Vector3 m_probeDimension;
+	uint32_t m_probeResolution;
+
+	Camera m_probeCamera;
 	
 	std::vector<Probe> m_probes;
 	ColorBuffer m_irradianceMapOctan;

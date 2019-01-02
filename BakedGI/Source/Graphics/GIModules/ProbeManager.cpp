@@ -12,6 +12,7 @@ ProbeManager::~ProbeManager()
 
 void ProbeManager::SetUpProbes(Vector3 min, Vector3 max, Vector3 division, int resolution)
 {
+	m_probeResolution = resolution;
 	m_probeDimension = division;
 	int x = division.GetX();
 	int y = division.GetY();
@@ -141,6 +142,20 @@ void ProbeManager::SetUpProbes(Vector3 min, Vector3 max, Vector3 division, int r
 
 void ProbeManager::RenderProbes(GraphicsContext& gfxContext, Scene& scene, D3D12_VIEWPORT viewport, D3D12_RECT scissor, LightManager& lightManger)
 {
+	D3D12_VIEWPORT probeViewPort;
+	probeViewPort.TopLeftX = 0.5f;
+	probeViewPort.TopLeftY = 0.5f;
+	probeViewPort.Width = (float)m_probeResolution;
+	probeViewPort.Height = (float)m_probeResolution;
+	probeViewPort.MinDepth = 0.0f;
+	probeViewPort.MaxDepth = 1.0f;
+
+	D3D12_RECT probeScissor;
+	probeScissor.left = 0;
+	probeScissor.top = 0;
+	probeScissor.right = (LONG)m_probeResolution;
+	probeScissor.bottom = (LONG)m_probeResolution;
+
 	gfxContext.SetRootSignature(m_probeRenderRootSig);
 	gfxContext.SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	gfxContext.TransitionResource(m_irradianceMapCube, D3D12_RESOURCE_STATE_RENDER_TARGET, true);
@@ -155,13 +170,19 @@ void ProbeManager::RenderProbes(GraphicsContext& gfxContext, Scene& scene, D3D12
 
 	gfxContext.SetPipelineState(m_probeRenderPSO);
 
-	for (int i = 0; i < 6; i++)
+	for (int probeID = 0; probeID < m_probeCount; probeID++)
 	{
-		D3D12_CPU_DESCRIPTOR_HANDLE rtvs[3] = { irradianceCubeRTVs[i], normalCubeRTVs[i], distanceCubeRTVs[i] };
-		gfxContext.SetRenderTargets(3, rtvs, m_depthBuffer.GetDSV());
-		gfxContext.SetViewportAndScissor(viewport, scissor);
-		//RenderObjects(gfxContext, model, cam, kOpaque);
-		scene.RenderScene(gfxContext, kOpaque);
+		m_probeCamera.SetPosition(m_probes[probeID].position);
+
+		for (int faceID = 0; faceID < 6; faceID++)
+		{
+			
+			D3D12_CPU_DESCRIPTOR_HANDLE rtvs[3] = { CalSubRTV(m_irradianceMapCube, probeID, faceID), CalSubRTV(m_normalMapOctan, probeID, faceID), CalSubRTV(m_distanceMapOctan, probeID, faceID) };
+			gfxContext.SetRenderTargets(3, rtvs, m_depthBuffer.GetDSV());
+			gfxContext.SetViewportAndScissor(probeViewPort, probeScissor);
+			//RenderObjects(gfxContext, model, cam, kOpaque);
+			scene.RenderScene(gfxContext, m_probeCamera, kOpaque);
+		}
 	}
 }
 
@@ -173,6 +194,24 @@ void ProbeManager::SetUpGpuDatas()
 void ProbeManager::ReprojCubetoOctan()
 {
 
+}
+
+D3D12_CPU_DESCRIPTOR_HANDLE ProbeManager::CalSubRTV(ColorBuffer& destBuffer, int probeID, int faceID)
+{
+	D3D12_CPU_DESCRIPTOR_HANDLE destHandle;
+	destHandle.ptr = D3D12_GPU_VIRTUAL_ADDRESS_UNKNOWN;
+
+	ID3D12Device* device = Graphics::g_Device;
+	destHandle = Graphics::AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+
+	ID3D12Resource* destRes = destBuffer.GetResource();
+	D3D12_RENDER_TARGET_VIEW_DESC destRTDesc = {};
+	destRTDesc.Format = destBuffer.GetFormat();
+	destRTDesc.Texture2DArray.MipSlice = 0;
+	destRTDesc.Texture2DArray.FirstArraySlice = probeID * 6 + faceID;
+	destRTDesc.Texture2DArray.ArraySize = 1;
+	device->CreateRenderTargetView(destRes, &destRTDesc, destHandle);
+	return destHandle;
 }
 
 void ProbeManager::CreateCubemapResouceViews()

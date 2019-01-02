@@ -139,3 +139,51 @@ void Scene::RenderScene(GraphicsContext& gfxContext, Matrix4 ViewProjMatrix, eOb
 		gfxContext.DrawIndexed(indexCount, startIndex, baseVertex);
 	}
 }
+
+void Scene::RenderScene(GraphicsContext& gfxContext, const Camera& cam, eObjectFilter filter)
+{
+	gfxContext.SetIndexBuffer(m_Model.m_IndexBuffer.IndexBufferView());
+	gfxContext.SetVertexBuffer(0, m_Model.m_VertexBuffer.VertexBufferView());
+
+	struct VSConstants
+	{
+		//Matrix4 viewMatrix;
+		//Matrix4 projMatrix;
+		Matrix4 viewProjMatrix;
+		//Matrix4 clusterMatrix;
+		//Vector4 screenParam;
+		//Vector4 projectionParam;
+		XMFLOAT3 cameraPos;
+	} perCameraConstants;
+
+	perCameraConstants.viewProjMatrix = cam.GetViewProjMatrix();
+	XMStoreFloat3(&perCameraConstants.cameraPos, cam.GetPosition());
+
+	gfxContext.SetDynamicConstantBufferView(1, sizeof(perCameraConstants), &perCameraConstants);
+
+	uint32_t materialIdx = 0xFFFFFFFFul;
+
+	uint32_t VertexStride = m_Model.m_VertexStride;
+
+	for (uint32_t meshIndex = 0; meshIndex < m_Model.m_Header.meshCount; meshIndex++)
+	{
+		const Model::Mesh& mesh = m_Model.m_pMesh[meshIndex];
+
+		uint32_t indexCount = mesh.indexCount;
+		uint32_t startIndex = mesh.indexDataByteOffset / sizeof(uint16_t);
+		uint32_t baseVertex = mesh.vertexDataByteOffset / VertexStride;
+
+		if (mesh.materialIndex != materialIdx)
+		{
+			if (m_pMaterialIsCutout[mesh.materialIndex] && !(filter & kCutout) ||
+				!m_pMaterialIsCutout[mesh.materialIndex] && !(filter & kOpaque))
+				continue;
+
+			materialIdx = mesh.materialIndex;
+			gfxContext.SetDynamicDescriptors(2, 0, 6, m_Model.GetSRVs(materialIdx));
+		}
+
+		gfxContext.SetConstants(0, baseVertex, materialIdx);
+		gfxContext.DrawIndexed(indexCount, startIndex, baseVertex);
+	}
+}
