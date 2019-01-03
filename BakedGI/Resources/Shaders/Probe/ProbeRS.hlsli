@@ -25,7 +25,7 @@
 
 #define ProbeRender_RootSig \
     "RootFlags(ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT), " \
-    "RootConstants(b1, num32BitConstants = 2, visibility = SHADER_VISIBILITY_VERTEX), " \
+    "RootConstants(b1, num32BitConstants = 4, visibility = SHADER_VISIBILITY_VERTEX), " \
     "CBV(b0, visibility = SHADER_VISIBILITY_VERTEX), " \
     "DescriptorTable(SRV(t0, numDescriptors = 6), visibility = SHADER_VISIBILITY_PIXEL)," \
     "CBV(b0, visibility = SHADER_VISIBILITY_PIXEL), " \
