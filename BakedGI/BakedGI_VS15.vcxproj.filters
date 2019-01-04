@@ -192,6 +192,7 @@
     <None Include="Resources\Shaders\Utils\Octahedral.hlsli" />
     <None Include="Resources\Shaders\Lighting\DeferredLightingRS.hlsli" />
     <None Include="Resources\Shaders\Probe\ProbeRS.hlsli" />
+    <None Include="Resources\Shaders\Probe\InputData.hlsli" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Resources\Shaders\Lighting\ClusterLightingShaderVS.hlsl">

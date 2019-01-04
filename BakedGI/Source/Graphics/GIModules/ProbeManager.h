@@ -39,7 +39,7 @@ public:
 
 	void SetUpProbes(Vector3 min, Vector3 max, Vector3 division, int resolution = 1024);
 	void RenderProbes(GraphicsContext& gfxContext, Scene& scene, D3D12_VIEWPORT viewport, D3D12_RECT scissor, LightManager& lightManger);
-	void ComputeTrace(GraphicsContext& gfxContext);
+	void ComputeTrace(ComputeContext& cc, ColorBuffer& GBuffer0, ColorBuffer& GBuffer1, ColorBuffer& GBuffer2);
 	void SetUpGpuDatas();
 	void Release();
 
@@ -49,9 +49,11 @@ private:
 	D3D12_CPU_DESCRIPTOR_HANDLE CalSubRTV(ColorBuffer& destBuffer, int probeID, int faceID);
 	void CreateCubemapResouceViews();
 
+	Quaternion* cubeCamRotations;
 	uint32_t m_probeCount;
 	Vector3 m_probeDimension;
 	uint32_t m_probeResolution;
+	const uint32_t MINMIP_SIZE = 16;
 
 	Camera m_probeCamera;
 	
@@ -59,6 +61,7 @@ private:
 	ColorBuffer m_irradianceMapOctan;
 	ColorBuffer m_normalMapOctan;
 	ColorBuffer m_distanceMapOctan;
+	ColorBuffer m_distanceMinMipMapOctan;
 
 	ColorBuffer m_irradianceMapCube;
 	ColorBuffer m_normalMapCube;

@@ -22,6 +22,8 @@ void ProbeManager::SetUpProbes(Vector3 min, Vector3 max, Vector3 division, int r
 
 	Vector3 dist = max - min;
 
+	cubeCamRotations = new Quaternion[6]{ Quaternion(90, 0, 0), Quaternion(0, 90, 0), Quaternion(0, 0, 0), Quaternion(-90, 0, 0), Quaternion(0, -90, 0), Quaternion(0, 180, 0) };
+
 	for(int i = 0; i < x; i++)
 		for(int j = 0; j < y; j++)
 			for (int k = 0; k < z; k++)
@@ -45,8 +47,9 @@ void ProbeManager::SetUpProbes(Vector3 min, Vector3 max, Vector3 division, int r
 
 	//Create Octan textures for final probe trace
 	m_irradianceMapOctan.CreateArray(L"Irradiance Octan Map", resolution, resolution, m_probeCount, DXGI_FORMAT_R11G11B10_FLOAT);
-	m_normalMapCube.CreateArray(L"Normal Octan Map", resolution, resolution, m_probeCount, DXGI_FORMAT_R16G16_UNORM);
-	m_distanceMapCube.CreateArray(L"Distance Octan Map", resolution, resolution, m_probeCount, DXGI_FORMAT_R16_FLOAT);
+	m_normalMapOctan.CreateArray(L"Normal Octan Map", resolution, resolution, m_probeCount, DXGI_FORMAT_R16G16_UNORM);
+	m_distanceMapOctan.CreateArray(L"Distance Octan Map", resolution, resolution, m_probeCount, DXGI_FORMAT_R16_FLOAT);
+	m_distanceMinMipMapOctan.CreateArray(L"Distance Min Mip Octan Map", resolution / MINMIP_SIZE, resolution / MINMIP_SIZE, m_probeCount, DXGI_FORMAT_R16_FLOAT);
 
 	SamplerDesc DefaultSamplerDesc;
 	DefaultSamplerDesc.MaxAnisotropy = 8;
@@ -62,11 +65,11 @@ void ProbeManager::SetUpProbes(Vector3 min, Vector3 max, Vector3 division, int r
 	m_probeRenderRootSig.Reset(5, 2);
 	m_probeRenderRootSig.InitStaticSampler(0, DefaultSamplerDesc, D3D12_SHADER_VISIBILITY_PIXEL);
 	m_probeRenderRootSig.InitStaticSampler(1, SamplerShadowDesc, D3D12_SHADER_VISIBILITY_PIXEL);
-	m_probeRenderRootSig[0].InitAsConstantBuffer(0, D3D12_SHADER_VISIBILITY_VERTEX);
-	m_probeRenderRootSig[1].InitAsConstantBuffer(0, D3D12_SHADER_VISIBILITY_PIXEL);
+	m_probeRenderRootSig[0].InitAsConstants(1, 4, D3D12_SHADER_VISIBILITY_VERTEX);
+	m_probeRenderRootSig[1].InitAsConstantBuffer(0, D3D12_SHADER_VISIBILITY_VERTEX);
 	m_probeRenderRootSig[2].InitAsDescriptorRange(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 0, 6, D3D12_SHADER_VISIBILITY_PIXEL);
-	m_probeRenderRootSig[3].InitAsDescriptorRange(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 64, 6, D3D12_SHADER_VISIBILITY_PIXEL);
-	m_probeRenderRootSig[4].InitAsConstants(1, 2, D3D12_SHADER_VISIBILITY_VERTEX);
+	m_probeRenderRootSig[3].InitAsConstantBuffer(0, D3D12_SHADER_VISIBILITY_PIXEL);
+	m_probeRenderRootSig[4].InitAsDescriptorRange(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 64, 6, D3D12_SHADER_VISIBILITY_PIXEL);
 	m_probeRenderRootSig.Finalize(L"Probe Renderer", D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
 
 	m_cubeToOctanProjRootSig.Reset(4, 1);
@@ -176,13 +179,58 @@ void ProbeManager::RenderProbes(GraphicsContext& gfxContext, Scene& scene, D3D12
 
 		for (int faceID = 0; faceID < 6; faceID++)
 		{
-			
+			m_probeCamera.SetRotation(cubeCamRotations[faceID]);
+			//D3D12_CPU_DESCRIPTOR_HANDLE rtvs[3] = { m_irradianceMapCube.GetRTV(), m_normalMapOctan.GetRTV(), m_distanceMapOctan.GetRTV() };
 			D3D12_CPU_DESCRIPTOR_HANDLE rtvs[3] = { CalSubRTV(m_irradianceMapCube, probeID, faceID), CalSubRTV(m_normalMapOctan, probeID, faceID), CalSubRTV(m_distanceMapOctan, probeID, faceID) };
 			gfxContext.SetRenderTargets(3, rtvs, m_depthBuffer.GetDSV());
 			gfxContext.SetViewportAndScissor(probeViewPort, probeScissor);
+			gfxContext.SetConstants(0, (uint32_t)faceID, 0, 0, 0);
 			//RenderObjects(gfxContext, model, cam, kOpaque);
 			scene.RenderScene(gfxContext, m_probeCamera, kOpaque);
 		}
+	}
+
+	{
+		ScopedTimer _prof(L"Cube to Octan Projection", gfxContext);
+		ComputeContext& cc = gfxContext.GetComputeContext();
+		cc.TransitionResource(m_irradianceMapCube, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
+		cc.TransitionResource(m_normalMapCube, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
+		cc.TransitionResource(m_distanceMapCube, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
+
+		cc.TransitionResource(m_irradianceMapOctan, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+		cc.TransitionResource(m_normalMapOctan, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+		cc.TransitionResource(m_distanceMapOctan, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+		cc.TransitionResource(m_distanceMinMipMapOctan, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+
+		cc.SetRootSignature(m_cubeToOctanProjRootSig);
+		cc.SetPipelineState(m_cubeToOctanPSO);
+		//Set rootsignature resources
+
+		cc.Dispatch3D(m_probeResolution, m_probeResolution, m_probeCount, 8, 8, 1);
+
+		cc.SetRootSignature(m_cubeToOctanProjRootSig);
+		cc.SetPipelineState(m_computeMinMipPSO);
+		//Set rootsignatrue resources
+
+		cc.Dispatch3D(m_probeResolution, m_probeResolution, m_probeCount, MINMIP_SIZE, MINMIP_SIZE, 1);
+
+	}
+}
+
+void ProbeManager::ComputeTrace(ComputeContext& cc, ColorBuffer& GBuffer0, ColorBuffer& GBuffer1, ColorBuffer& GBuffer2)
+{
+	{
+		cc.TransitionResource(m_irradianceMapOctan, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
+		cc.TransitionResource(m_normalMapOctan, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
+		cc.TransitionResource(m_distanceMapOctan, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
+		cc.TransitionResource(m_distanceMinMipMapOctan, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
+
+		cc.SetRootSignature(m_computeTraceRootSig);
+		cc.SetPipelineState(m_computeTracePSO);
+		//Set rootsignature resources
+
+
+		cc.Dispatch2D(g_SceneColorBuffer.GetWidth(), g_SceneColorBuffer.GetWidth());
 	}
 }
 
@@ -280,4 +328,19 @@ void ProbeManager::CreateCubemapResouceViews()
 	distanceSRVDesc.Texture2DArray.ArraySize = (UINT)m_probeCount;
 	distanceCubeSRV = Graphics::AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 	device->CreateShaderResourceView(distCubeMapRes, &distanceSRVDesc, distanceCubeSRV);
+}
+
+void ProbeManager::Release()
+{
+	m_irradianceMapCube.Destroy();
+	m_normalMapCube.Destroy();
+	m_distanceMapCube.Destroy();
+
+	m_irradianceMapOctan.Destroy();
+	m_normalMapOctan.Destroy();
+	m_distanceMapOctan.Destroy();
+
+	m_depthBuffer.Destroy();
+	
+	delete[] cubeCamRotations;
 }

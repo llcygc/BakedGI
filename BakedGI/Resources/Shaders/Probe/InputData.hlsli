@@ -18,7 +18,7 @@ struct VertexOutput
 	float3 binormalWS : TexCoord4;
 	float3 viewDir : TexCoord5;
 	float4 posCluster : TexCoord6;
-	uint rtArraySlice : SV_RenderTargetArrayIndex;
+	//uint rtArraySlice : SV_RenderTargetArrayIndex;
 };
 
 struct PixelOutput

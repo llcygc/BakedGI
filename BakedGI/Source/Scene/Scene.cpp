@@ -149,6 +149,7 @@ void Scene::RenderScene(GraphicsContext& gfxContext, const Camera& cam, eObjectF
 	{
 		//Matrix4 viewMatrix;
 		//Matrix4 projMatrix;
+		Matrix4 objectToWorldMatrix;
 		Matrix4 viewProjMatrix;
 		//Matrix4 clusterMatrix;
 		//Vector4 screenParam;
@@ -157,6 +158,7 @@ void Scene::RenderScene(GraphicsContext& gfxContext, const Camera& cam, eObjectF
 	} perCameraConstants;
 
 	perCameraConstants.viewProjMatrix = cam.GetViewProjMatrix();
+	perCameraConstants.objectToWorldMatrix = Matrix4(kIdentity);
 	XMStoreFloat3(&perCameraConstants.cameraPos, cam.GetPosition());
 
 	gfxContext.SetDynamicConstantBufferView(1, sizeof(perCameraConstants), &perCameraConstants);

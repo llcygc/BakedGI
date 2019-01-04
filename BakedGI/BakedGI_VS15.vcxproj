@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|x64">
@@ -70,6 +70,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Graphics\DepthBufferArray.cpp" />
     <ClCompile Include="Source\Graphics\DeferredRenderer.cpp" />
     <ClCompile Include="Source\Graphics\Primitives.cpp" />
     <ClCompile Include="Source\Graphics\GIModules\CubeBuffer.cpp" />
@@ -161,6 +162,7 @@
     <Image Include="Resources\Textures\WideLogo.png" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Graphics\DepthBufferArray.h" />
     <ClInclude Include="Source\Graphics\DeferredRenderer.h" />
     <ClInclude Include="Source\Graphics\Primitives.h" />
     <ClInclude Include="Source\Graphics\GIModules\CubeBuffer.h" />
@@ -294,6 +296,7 @@
     <None Include="Resources\Shaders\Lighting\Lighting.hlsli" />
     <None Include="Resources\Shaders\Lighting\Material.hlsli" />
     <None Include="Resources\Shaders\Lighting\ShadowData.hlsli" />
+    <None Include="Resources\Shaders\Probe\InputData.hlsli" />
     <None Include="Resources\Shaders\Probe\ProbeRS.hlsli" />
     <None Include="Resources\Shaders\Utils\Basics.hlsli" />
     <None Include="Resources\Shaders\Utils\BasicUtils.hlsli" />

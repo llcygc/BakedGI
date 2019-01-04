@@ -24,6 +24,6 @@ VertexOutput main(VertexInput v)
 	o.posCluster = PositionWorldToCluster(o.posWS);
 	o.viewDir = cameraPos - o.posWS.xyz;
 	o.uv = v.uv;
-	o.rtArraySlice = probeParams.sliceIndex;
+	//o.rtArraySlice = probeParams.sliceIndex;
 	return o;
 }
