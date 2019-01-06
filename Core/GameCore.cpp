@@ -72,7 +72,7 @@ namespace GameCore
         game.Update(DeltaTime);
         game.RenderScene();
 
-        PostEffects::Render();
+        //PostEffects::Render();
 
         if (TestGenerateMips)
         {

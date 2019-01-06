@@ -64,6 +64,11 @@ void DeferredRenderer::Initialize()
 	m_DeferredLightingPSO.SetRootSignature(m_LitSig);
 	m_DeferredLightingPSO.SetComputeShader(g_pDeferredLightingCS, sizeof(g_pDeferredLightingCS));
 	m_DeferredLightingPSO.Finalize();
+
+	gBufferSRVs[0] = GBuffer0.GetSRV();
+	gBufferSRVs[1] = GBuffer1.GetSRV();
+	gBufferSRVs[2] = GBuffer2.GetSRV();
+	gBufferSRVs[3] = g_SceneDepthBuffer.GetDepthSRV();
 }
 
 void DeferredRenderer::Update()
@@ -149,6 +154,11 @@ void DeferredRenderer::Render(GraphicsContext& gfxContext, Scene& scene, D3D12_V
 	}
 
 	gfxContext.TransitionResource(g_SceneColorBuffer, D3D12_RESOURCE_STATE_RENDER_TARGET, true);
+}
+
+D3D12_CPU_DESCRIPTOR_HANDLE* DeferredRenderer::GetGBufferSRVs()
+{	 
+	return gBufferSRVs;
 }
 
 void DeferredRenderer::Release()

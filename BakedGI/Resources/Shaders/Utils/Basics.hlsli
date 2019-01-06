@@ -13,7 +13,7 @@ cbuffer PerCamera : register(b0)
 
 float4 PositionObjectToWorld(float4 objectPos)
 {
-	return mul(objectPos, objectToWorldMatrix);
+    return mul(objectToWorldMatrix, objectPos);
 }
 
 float4 PositionWorldToClip(float4 worldPos)

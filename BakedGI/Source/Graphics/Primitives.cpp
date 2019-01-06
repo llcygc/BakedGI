@@ -34,7 +34,7 @@ void Primitives::RenderPrimitive(GraphicsContext& gfxContext, const Camera& cam,
 	perCameraConstants.worldMatrix = worldMat;
 	XMStoreFloat3(&perCameraConstants.cameraPos, cam.GetPosition());
 
-	gfxContext.SetDynamicConstantBufferView(1, sizeof(perCameraConstants), &perCameraConstants);
+	gfxContext.SetDynamicConstantBufferView(0, sizeof(perCameraConstants), &perCameraConstants);
 
 	gfxContext.DrawIndexed(INDEX_COUNT, 0, 0);
 }

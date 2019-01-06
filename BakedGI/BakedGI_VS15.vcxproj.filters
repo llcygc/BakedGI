@@ -80,6 +80,9 @@
     <ClCompile Include="Source\Graphics\DeferredRenderer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Graphics\DepthBufferArray.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Resources\Textures\Logo.png">
@@ -175,6 +178,7 @@
     <ClInclude Include="Source\Graphics\GIModules\CubeBuffer.h" />
     <ClInclude Include="Source\Graphics\Primitives.h" />
     <ClInclude Include="Source\Graphics\DeferredRenderer.h" />
+    <ClInclude Include="Source\Graphics\DepthBufferArray.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\Shaders\Utils\Basics.hlsli">
@@ -193,6 +197,7 @@
     <None Include="Resources\Shaders\Lighting\DeferredLightingRS.hlsli" />
     <None Include="Resources\Shaders\Probe\ProbeRS.hlsli" />
     <None Include="Resources\Shaders\Probe\InputData.hlsli" />
+    <None Include="Resources\Shaders\Probe\TraceModule.hlsli" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Resources\Shaders\Lighting\ClusterLightingShaderVS.hlsl">

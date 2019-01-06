@@ -2,15 +2,13 @@
 #include "ProbeRS.hlsli"
 #include "../Utils/Basics.hlsli"
 
-struct ProbeParams
+cbuffer ProbeParams : register(b1)
 {
 	uint sliceIndex;
 	uint unused0;
 	uint unused1;
 	uint unused2;
 };
-
-ConstantBuffer<ProbeParams> probeParams : register(b1)
 
 [RootSignature(ProbeRender_RootSig)]
 VertexOutput main(VertexInput v)
@@ -21,7 +19,7 @@ VertexOutput main(VertexInput v)
 	o.normalWS = DirectionObjectToWorld(v.normal);
 	o.tangentWS = DirectionObjectToWorld(v.tangent);
 	o.binormalWS = DirectionObjectToWorld(v.binormal);
-	o.posCluster = PositionWorldToCluster(o.posWS);
+    o.posCluster = float4(cameraPos, sliceIndex); //PositionWorldToCluster(o.posWS);
 	o.viewDir = cameraPos - o.posWS.xyz;
 	o.uv = v.uv;
 	//o.rtArraySlice = probeParams.sliceIndex;

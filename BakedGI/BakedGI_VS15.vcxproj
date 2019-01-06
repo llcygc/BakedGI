@@ -298,6 +298,7 @@
     <None Include="Resources\Shaders\Lighting\ShadowData.hlsli" />
     <None Include="Resources\Shaders\Probe\InputData.hlsli" />
     <None Include="Resources\Shaders\Probe\ProbeRS.hlsli" />
+    <None Include="Resources\Shaders\Probe\TraceModule.hlsli" />
     <None Include="Resources\Shaders\Utils\Basics.hlsli" />
     <None Include="Resources\Shaders\Utils\BasicUtils.hlsli" />
     <None Include="Resources\Shaders\Utils\Octahedral.hlsli" />

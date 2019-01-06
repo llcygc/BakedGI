@@ -80,6 +80,9 @@ private:
 	Vector3 m_SunDirection;
 	ShadowCamera m_SunShadow;
 
+	bool isProbeRendererd = false;
+	bool isProbeDynamic = true;
+
 	D3D12_CPU_DESCRIPTOR_HANDLE m_ExtraTextures;
 
 	void RenderObjects(GraphicsContext& gfxContext, Matrix4 viewProjMatrix, eObjectFilter filter);
@@ -126,43 +129,6 @@ void BakedGI::Startup( void )
 		{ "BITANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
 	};
 
-	/*m_DepthPSO.SetRootSignature(m_RootSig);
-	m_DepthPSO.SetRasterizerState(RasterizerDefault);
-	m_DepthPSO.SetBlendState(BlendNoColorWrite);
-	m_DepthPSO.SetDepthStencilState(DepthStateReadWrite);
-	m_DepthPSO.SetInputLayout(_countof(vertElem), vertElem);
-	m_DepthPSO.SetPrimitiveTopologyType(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE);
-	m_DepthPSO.SetRenderTargetFormats(0, nullptr, DepthFormat);
-	m_DepthPSO.SetVertexShader(g_pDepthShaderVS, sizeof(g_pDepthShaderVS));
-	m_DepthPSO.Finalize();
-
-	m_CutoutDepthPSO = m_DepthPSO;
-	m_CutoutDepthPSO.SetPixelShader(g_pDepthShaderPS, sizeof(g_pDepthShaderPS));
-	m_CutoutDepthPSO.SetRasterizerState(RasterizerTwoSided);
-	m_CutoutDepthPSO.Finalize();
-
-	m_ShadowPSO = m_DepthPSO;
-	m_ShadowPSO.SetRasterizerState(RasterizerShadow);
-	m_ShadowPSO.SetRenderTargetFormats(0, nullptr, g_ShadowBuffer.GetFormat());
-	m_ShadowPSO.Finalize();
-
-	m_CutoutShadowPSO = m_DepthPSO;
-	m_CutoutShadowPSO.SetPixelShader(g_pDepthShaderPS, sizeof(g_pDepthShaderPS));
-	m_CutoutShadowPSO.SetRasterizerState(RasterizerShadowTwoSided);
-	m_CutoutShadowPSO.Finalize();
-
-	m_ModelPSO = m_DepthPSO;
-	m_ModelPSO.SetBlendState(BlendDisable);
-	m_ModelPSO.SetDepthStencilState(DepthStateReadWrite);
-	m_ModelPSO.SetRenderTargetFormats(1, &ColorFormat, DepthFormat);
-	m_ModelPSO.SetVertexShader(g_pClusterLightingShaderVS, sizeof(g_pClusterLightingShaderVS));
-	m_ModelPSO.SetPixelShader(g_pClusterLightingShaderPS, sizeof(g_pClusterLightingShaderPS));
-	m_ModelPSO.Finalize();
-
-	m_CutoutModelPSO = m_ModelPSO;
-	m_CutoutModelPSO.SetRasterizerState(RasterizerTwoSided);
-	m_CutoutModelPSO.Finalize();*/
-
 	m_ExtraTextures = g_ShadowBuffer.GetSRV();
 
 	TextureManager::Initialize(ResourceManager::GetResourceRootPathWide() + L"Textures/");
@@ -172,6 +138,9 @@ void BakedGI::Startup( void )
 	SetupLights();
 	SetupProbes(m_Scene.GetSceneBoundingBox());
 	m_DeferredRender.Initialize();
+
+	isProbeRendererd = false;
+	isProbeDynamic = true;
 }
 
 void BakedGI::SetupLights()
@@ -244,7 +213,18 @@ void BakedGI::RenderScene( void )
 
 	{
 		m_LightManager.RenderShadows(gfxContext, m_Scene);
+
+		if ((!isProbeRendererd) || isProbeDynamic)
+		{
+			m_ProbeManager.RenderProbes(gfxContext, m_Scene, m_LightManager);
+			isProbeRendererd = true;
+		}
+
 		m_DeferredRender.Render(gfxContext, m_Scene, m_MainViewport, m_MainScissor, m_LightManager);
+
+		m_ProbeManager.ComputeTrace(gfxContext.GetComputeContext(), m_DeferredRender.GetGBufferSRVs());
+
+		m_ProbeManager.RenderDebugProbes(gfxContext, m_Scene, m_MainViewport, m_MainScissor);
 	}
 
     // Rendering something

@@ -22,7 +22,7 @@ struct VertexData
 	}
 };
 
-struct Vertex
+__declspec(align(16)) struct Vertex
 {
 	XMFLOAT3 position;
 	XMFLOAT2 uv;
@@ -55,6 +55,8 @@ class Sphere : public Primitives
 {
 public:
 	virtual ~Sphere();
+
+	virtual void Create(void) override;
 private:
 
 	Vertex vertices[515] = {
@@ -808,8 +810,6 @@ private:
 		497, 458, 457
 	};
 
-
-	virtual void Create(void) override;
 };
 
 class Cube : public Primitives

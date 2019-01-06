@@ -17,9 +17,20 @@ RWTexture2DArray<float> distanceMinMipOctaMap : register(u3);
 
 SamplerState sampler0 : register(s0);
 
+groupshared float minDist = 10000.0f;
+
 [RootSignature(CubeToOctan_RootSig)]
 [numthreads(16, 16, 1)]
 void main( uint3 DTid : SV_DispatchThreadID )
 {
+    
+    float dist = distanceOctanMap[DTid];
 
+    if (minDist > dist)
+        minDist = dist;
+
+    GroupMemoryBarrierWithGroupSync();
+
+    if (DTid.x == 0 && DTid.y == 0)
+        distanceMinMipOctaMap[DTid] = minDist;
 }

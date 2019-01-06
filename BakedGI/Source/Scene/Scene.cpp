@@ -53,6 +53,7 @@ void Scene::RenderScene(GraphicsContext& gfxContext, eObjectFilter filter)
 	{
 		//Matrix4 viewMatrix;
 		//Matrix4 projMatrix;
+		Matrix4 objectToWorldMatrix;
 		Matrix4 viewProjMatrix;
 		//Matrix4 clusterMatrix;
 		//Vector4 screenParam;
@@ -61,6 +62,7 @@ void Scene::RenderScene(GraphicsContext& gfxContext, eObjectFilter filter)
 	} perCameraConstants;
 
 	perCameraConstants.viewProjMatrix = m_Camera.GetViewProjMatrix();
+	perCameraConstants.objectToWorldMatrix = Matrix4(kIdentity);
 	XMStoreFloat3(&perCameraConstants.cameraPos, m_Camera.GetPosition());
 
 	gfxContext.SetDynamicConstantBufferView(1, sizeof(perCameraConstants), &perCameraConstants);
@@ -101,6 +103,7 @@ void Scene::RenderScene(GraphicsContext& gfxContext, Matrix4 ViewProjMatrix, eOb
 	{
 		//Matrix4 viewMatrix;
 		//Matrix4 projMatrix;
+		Matrix4 objectToWorldMatrix;
 		Matrix4 viewProjMatrix;
 		//Matrix4 clusterMatrix;
 		//Vector4 screenParam;
@@ -109,6 +112,7 @@ void Scene::RenderScene(GraphicsContext& gfxContext, Matrix4 ViewProjMatrix, eOb
 	} perCameraConstants;
 
 	perCameraConstants.viewProjMatrix = ViewProjMatrix;
+	perCameraConstants.objectToWorldMatrix = Matrix4(kIdentity);
 	XMStoreFloat3(&perCameraConstants.cameraPos, m_Camera.GetPosition());
 
 	gfxContext.SetDynamicConstantBufferView(1, sizeof(perCameraConstants), &perCameraConstants);

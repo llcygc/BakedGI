@@ -87,5 +87,5 @@ void main( uint3 DTid : SV_DispatchThreadID )
 
 	float3 finalColor = DirectLighting(posData, brdfData, colorAngle.rgb * GetShadow(posWorld), forwardRange.xyz);
 
-	OutColor[DTid.xy] = finalColor;// worldPos.xyz;// GBuffer0[DTid.xy].rgb;
+    OutColor[DTid.xy] = brdfData.diffuse.rgb; // worldPos.xyz;// GBuffer0[DTid.xy].rgb;
 }

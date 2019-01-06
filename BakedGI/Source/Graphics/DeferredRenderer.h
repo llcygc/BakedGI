@@ -26,7 +26,10 @@ public:
 	void Render(GraphicsContext& gfxContext, Scene& scene, D3D12_VIEWPORT viewport, D3D12_RECT scissor, LightManager& lightManger);
 	void Release();
 
+	D3D12_CPU_DESCRIPTOR_HANDLE* GetGBufferSRVs();
+
 private:
+	D3D12_CPU_DESCRIPTOR_HANDLE gBufferSRVs[4];
 
 	RootSignature m_GBufferSig;
 	RootSignature m_LitSig;

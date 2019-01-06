@@ -1,8 +1,8 @@
 #pragma once
 
+//MiniEngine features
 #include "pch.h"
 #include "VectorMath.h"
-
 #include "GraphicsCore.h"
 #include "GpuBuffer.h"
 #include "ColorBuffer.h"
@@ -10,9 +10,13 @@
 #include "PipelineState.h"
 #include "RootSignature.h"
 #include "BufferManager.h"
+
+//Expanded features
 #include "../LightManager.h"
 #include "../../Scene/Scene.h"
+#include "../Primitives.h"
 
+//Compiled shaders
 #include "CompiledShaders/ProbeRenderVS.h"
 #include "CompiledShaders/ProbeRenderPS.h"
 #include "CompiledShaders/ProbeDebugVS.h"
@@ -28,7 +32,6 @@ using namespace Graphics;
 struct Probe
 {
 	Vector3 position;
-	Matrix4 cubeMatrices[6];
 };
 
 class ProbeManager
@@ -37,13 +40,24 @@ public:
 	ProbeManager();
 	~ProbeManager();
 
-	void SetUpProbes(Vector3 min, Vector3 max, Vector3 division, int resolution = 1024);
-	void RenderProbes(GraphicsContext& gfxContext, Scene& scene, D3D12_VIEWPORT viewport, D3D12_RECT scissor, LightManager& lightManger);
-	void ComputeTrace(ComputeContext& cc, ColorBuffer& GBuffer0, ColorBuffer& GBuffer1, ColorBuffer& GBuffer2);
+	void SetUpProbes(Vector3 min, Vector3 max, float scale, Vector3 division, int resolution = 1024);
+	void RenderProbes(GraphicsContext& gfxContext, Scene& scene, LightManager& lightManger);
+	void ComputeTrace(ComputeContext& cc, D3D12_CPU_DESCRIPTOR_HANDLE* gBufferSRVs);
 	void SetUpGpuDatas();
+	void RenderDebugProbes(GraphicsContext& gfxContext, Scene& scene, D3D12_VIEWPORT viewport, D3D12_RECT scissor);
 	void Release();
 
 private:
+
+	__declspec(align(16)) struct ProbeParams
+	{
+		XMFLOAT4 probeRes;
+		XMFLOAT4 screenParam;
+		XMFLOAT4 probeParam;
+		XMFLOAT4 probePosMin;
+		XMFLOAT4 probePosMax;
+		XMFLOAT4 probeZParam;
+	} probeParams;
 
 	void ReprojCubetoOctan();
 	D3D12_CPU_DESCRIPTOR_HANDLE CalSubRTV(ColorBuffer& destBuffer, int probeID, int faceID);
@@ -56,8 +70,10 @@ private:
 	const uint32_t MINMIP_SIZE = 16;
 
 	Camera m_probeCamera;
+	float nearPlane = 0.1f;
+	float farPlane = 2000.0f;
 	
-	std::vector<Probe> m_probes;
+	Probe* m_probes;
 	ColorBuffer m_irradianceMapOctan;
 	ColorBuffer m_normalMapOctan;
 	ColorBuffer m_distanceMapOctan;
@@ -67,16 +83,19 @@ private:
 	ColorBuffer m_normalMapCube;
 	ColorBuffer m_distanceMapCube;
 
-	D3D12_CPU_DESCRIPTOR_HANDLE irradianceCubeRTVs[6];
+	ColorBuffer m_probeTraceBuffer;
+	ColorBuffer m_probeTraceBufferLastFrame;
+
+	/*D3D12_CPU_DESCRIPTOR_HANDLE irradianceCubeRTVs[6];
 	D3D12_CPU_DESCRIPTOR_HANDLE normalCubeRTVs[6];
-	D3D12_CPU_DESCRIPTOR_HANDLE distanceCubeRTVs[6];
+	D3D12_CPU_DESCRIPTOR_HANDLE distanceCubeRTVs[6];*/
 
 	D3D12_CPU_DESCRIPTOR_HANDLE irradianceCubeSRV;
 	D3D12_CPU_DESCRIPTOR_HANDLE normalCubeSRV;
 	D3D12_CPU_DESCRIPTOR_HANDLE distanceCubeSRV;
 
 	DepthBuffer m_depthBuffer;
-	StructuredBuffer m_ProbeMatrixBuffer;
+	StructuredBuffer m_ProbeDataBuffer;
 
 	GraphicsPSO m_debugDisplayPSO;
 	GraphicsPSO m_probeRenderPSO;
@@ -90,5 +109,7 @@ private:
 	RootSignature m_cubeToOctanProjRootSig;
 	RootSignature m_computeTraceRootSig;
 	RootSignature m_traceTemporalRootSig;
+
+	Sphere m_debugSphere;
 };
 

@@ -8,13 +8,15 @@ cbuffer ProbeParams : register(b1)
 };
 
 RWTexture2D<float3> traceResult : register(u0);
+RWTexture2D<float3> traceResultLastFrame : register(u1);
+RWTexture2D<float3> finalColorBuffer : register(u2);
 
 Texture2D<float> depthBuffer : register(t0);
-Texture2D<float3> traceResultLastFrame : register(t1);
 
 SamplerState sampler0 : register(s0);
 
-[numthreads(1, 1, 1)]
+[RootSignature(Temporal_RootSig)]
+[numthreads(8, 8, 1)]
 void main( uint3 DTid : SV_DispatchThreadID )
 {
 

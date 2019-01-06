@@ -1,4 +1,7 @@
 #include "InputData.hlsli"
+#include "ProbeRS.hlsli"
+#include "../Utils/Octahedral.hlsli"
+#include "../Lighting/Lighting.hlsli"
 
 cbuffer DirectionalLight : register(b0)
 {
@@ -9,6 +12,16 @@ cbuffer DirectionalLight : register(b0)
 	float4 forwardRange;
 	float4 shadowParams;
 }
+
+cbuffer ProbeParams : register(b1)
+{
+    float4 probeRes;
+    float4 screenParams;
+    float4 probeParams;
+    float4 probePosMin;
+    float4 probePosMax;
+    float4 probeZParam;
+};
 
 Texture2D<float3> texDiffuse : register(t0);
 Texture2D<float3> texSpecular : register(t1);
@@ -61,9 +74,9 @@ PixelOutput main(VertexOutput i) : SV_TARGET
 	float3 normalRGB8 = snorm12x2_to_unorm8x3(normalOct24);
 
 	PixelOutput o;
-	o.irradiance = brdfData.diffuse.rgb;
+    o.irradiance = brdfData.diffuse.rgb;
 	o.normal = normalOct24;
-	o.distance = length(i.posWS.xyz - cameraPos);
+    o.distance = length(i.posWS.xyz - i.posCluster.xyz) / probeZParam.y;
 
 	return o;
 }
